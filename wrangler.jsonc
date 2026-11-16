@@ -1,6 +1,6 @@
 {
-  // Cloudflare에 표시될 Worker 이름. 기본 주소가 https://llm-token-calc.<계정>.workers.dev 가 됩니다.
-  "name": "llm-token-calc",
+  // Cloudflare에 표시될 Worker 이름. 기본 주소가 https://sajang-calculator.<계정>.workers.dev 가 됩니다.
+  "name": "sajang-calculator",
 
   // Cloudflare 실행 환경의 기준 날짜. 이 날짜 기준의 동작 방식으로 고정됩니다.
   "compatibility_date": "2026-11-01",
