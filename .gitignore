@@ -1,0 +1,23 @@
+# 공개하면 안 되는 운영 문서
+PLAN.md
+PLAN.*.md
+
+# Claude 작업 기록
+.claude/
+
+# 맥·윈도우 시스템 파일
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# 편집기 임시 파일
+*.swp
+*~
+.vscode/
+.idea/
+
+# 비밀 정보가 들어갈 수 있는 파일 (혹시 생기더라도 올라가지 않게)
+.env
+.env.*
+*.zip
