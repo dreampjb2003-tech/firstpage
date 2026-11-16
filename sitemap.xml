@@ -2,6 +2,12 @@
 <!-- [직접 작성 필요] 도메인 연결 후 example.com을 실제 도메인으로 바꾸세요 -->
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://example.com/</loc><lastmod>2026-11-16</lastmod></url>
+  <url><loc>https://example.com/calc/</loc><lastmod>2026-11-16</lastmod></url>
+  <url><loc>https://example.com/calc/weekly-holiday-pay/</loc><lastmod>2026-11-16</lastmod></url>
+  <url><loc>https://example.com/calc/insurance/</loc><lastmod>2026-11-16</lastmod></url>
+  <url><loc>https://example.com/calc/hourly-monthly/</loc><lastmod>2026-11-16</lastmod></url>
+  <url><loc>https://example.com/calc/night-pay/</loc><lastmod>2026-11-16</lastmod></url>
+  <url><loc>https://example.com/calc/severance/</loc><lastmod>2026-11-16</lastmod></url>
   <url><loc>https://example.com/guide/</loc><lastmod>2026-11-16</lastmod></url>
   <url><loc>https://example.com/about/</loc><lastmod>2026-11-16</lastmod></url>
   <url><loc>https://example.com/contact/</loc><lastmod>2026-11-16</lastmod></url>

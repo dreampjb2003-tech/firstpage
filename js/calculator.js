@@ -172,20 +172,10 @@
     var monthlyWorkHours = weeklyHours * WEEKS_PER_MONTH;
     var insRequired = monthlyWorkHours >= R.insuranceMinMonthlyHours;
 
-    var np = 0, hi = 0, ltc = 0, ei = 0, npW = 0, hiW = 0, ltcW = 0, eiW = 0;
-    if (insRequired) {
-      var npBase = Math.min(Math.max(monthlyWage, R.nationalPension.baseMin), R.nationalPension.baseMax);
-      np = floor10(npBase * R.nationalPension.employer);
-      hi = floor10(monthlyWage * R.healthInsurance.employer);
-      ltc = floor10(hi * R.longTermCare.ratioOfHealth);
-      ei = floor10(monthlyWage * R.employmentInsurance.employer);
-      npW = floor10(npBase * R.nationalPension.employee);
-      hiW = floor10(monthlyWage * R.healthInsurance.employee);
-      ltcW = floor10(hiW * R.longTermCare.ratioOfHealth);
-      eiW = floor10(monthlyWage * R.employmentInsurance.employee);
-    }
-    var ia = floor10(monthlyWage * iaRate);
-    var insTotal = np + hi + ltc + ei + ia;
+    var insr = insuranceFor(monthlyWage, iaRate, insRequired, R);
+    var np = insr.employer.np, hi = insr.employer.hi, ltc = insr.employer.ltc, ei = insr.employer.ei, ia = insr.employer.ia;
+    var npW = insr.employee.np, hiW = insr.employee.hi, ltcW = insr.employee.ltc, eiW = insr.employee.ei;
+    var insTotal = insr.employer.total;
 
     // 퇴직금 월 적립액
     var severanceEligible = !!input.longTerm && weeklyHours >= R.weeklyHolidayMinHours;
@@ -231,6 +221,8 @@
       severance: severance,
       refSeverance: severanceEligible ? 0 : (weeklyHours >= R.weeklyHolidayMinHours ? severanceCalc : 0),
       totalPerPerson: totalPerPerson,
+      realHourly: monthlyWorkHours > 0 ? totalPerPerson / monthlyWorkHours : 0,
+      realMultiple: monthlyWorkHours > 0 && wage > 0 ? totalPerPerson / monthlyWorkHours / wage : 0,
       totalAll: totalPerPerson * headcount,
       annual: totalPerPerson * headcount * 12,
       freelance: {
@@ -246,12 +238,204 @@
     };
   }
 
+
+  /* ---------- 4대보험 (공통) ---------- */
+  function insuranceFor(monthlyWage, iaRate, required, R) {
+    var e = { np: 0, hi: 0, ltc: 0, ei: 0, ia: 0 }, w = { np: 0, hi: 0, ltc: 0, ei: 0 };
+    if (required) {
+      var npBase = Math.min(Math.max(monthlyWage, R.nationalPension.baseMin), R.nationalPension.baseMax);
+      e.np = floor10(npBase * R.nationalPension.employer);
+      e.hi = floor10(monthlyWage * R.healthInsurance.employer);
+      e.ltc = floor10(e.hi * R.longTermCare.ratioOfHealth);
+      e.ei = floor10(monthlyWage * R.employmentInsurance.employer);
+      w.np = floor10(npBase * R.nationalPension.employee);
+      w.hi = floor10(monthlyWage * R.healthInsurance.employee);
+      w.ltc = floor10(w.hi * R.longTermCare.ratioOfHealth);
+      w.ei = floor10(monthlyWage * R.employmentInsurance.employee);
+    }
+    e.ia = floor10(monthlyWage * (iaRate || 0));
+    e.total = e.np + e.hi + e.ltc + e.ei + e.ia;
+    w.total = w.np + w.hi + w.ltc + w.ei;
+    return { employer: e, employee: w, required: !!required };
+  }
+
+  function industrialRate(input, R) {
+    if (input.industryId === 'custom') {
+      var cr = Number(input.customRate);
+      if (input.customRate === '' || input.customRate == null || !isFinite(cr) || cr < 0 || cr > 20) return null;
+      return { rate: cr / 100, label: '직접 입력 ' + cr + '%' };
+    }
+    for (var k = 0; k < R.industrial.length; k++) {
+      if (R.industrial[k].id === input.industryId) return { rate: R.industrial[k].rate, label: R.industrial[k].label };
+    }
+    return { rate: R.industrial[0].rate, label: R.industrial[0].label };
+  }
+
+  function num(v) {
+    if (v === '' || v === null || v === undefined) return NaN;
+    return Number(String(v).replace(/,/g, ''));
+  }
+
+  function holidayHoursFor(weeklyHours, R) {
+    return weeklyHours >= R.weeklyHolidayMinHours ? Math.min(weeklyHours / 40 * 8, 8) : 0;
+  }
+
+  function monthlyPaidHoursFor(weeklyHours, holidayHours) {
+    return Math.ceil((weeklyHours + holidayHours) * WEEKS_PER_MONTH - 1e-9);
+  }
+
+  /* ---------- ② 주휴수당 ---------- */
+  // input: { wage, weeklyHours, attended(bool) }
+  function weeklyHoliday(input, R) {
+    var errors = [], warnings = [];
+    var wage = num(input.wage), wh = num(input.weeklyHours);
+    if (!isFinite(wage) || wage < 1 || wage > 1000000) errors.push({ field: 'wage', msg: '시급을 1원 이상의 숫자로 입력해 주세요.' });
+    if (!isFinite(wh) || wh <= 0 || wh > 168) errors.push({ field: 'weeklyHours', msg: '주 근무시간을 0보다 큰 숫자로 입력해 주세요.' });
+    if (errors.length) return { ok: false, errors: errors, warnings: warnings };
+    if (wage < R.minimumWage) warnings.push(R.minimumWageYear + '년 최저임금(' + fmt(R.minimumWage) + '원)보다 낮습니다.');
+    if (wh > 40) warnings.push('주 40시간을 넘어도 주휴시간은 최대 8시간입니다.');
+    var eligibleByHours = wh >= R.weeklyHolidayMinHours;
+    var attended = input.attended !== false;
+    var hh = eligibleByHours && attended ? Math.min(wh / 40 * 8, 8) : 0;
+    var weeklyPay = Math.round(hh * wage);
+    var paidHours = monthlyPaidHoursFor(wh, eligibleByHours ? Math.min(wh / 40 * 8, 8) : 0);
+    return {
+      ok: true, errors: [], warnings: warnings,
+      wage: wage, weeklyHours: wh, eligibleByHours: eligibleByHours, attended: attended,
+      eligible: hh > 0, holidayHours: hh, weeklyPay: weeklyPay,
+      monthlyPay: Math.round(hh * wage * WEEKS_PER_MONTH),
+      monthlyPaidHours: paidHours, monthlyWage: Math.round(paidHours * wage),
+      remainingTo15: eligibleByHours ? 0 : R.weeklyHolidayMinHours - wh
+    };
+  }
+
+  /* ---------- ③ 4대보험 ---------- */
+  // input: { pay(월 보수), monthlyHours(주휴 제외 월 근무시간), industryId, customRate }
+  function insurance(input, R) {
+    var errors = [];
+    var pay = num(input.pay), mh = num(input.monthlyHours);
+    if (!isFinite(pay) || pay < 1 || pay > 100000000) errors.push({ field: 'pay', msg: '월 급여를 1원 이상의 숫자로 입력해 주세요.' });
+    if (!isFinite(mh) || mh <= 0 || mh > 744) errors.push({ field: 'monthlyHours', msg: '월 근무시간을 0보다 큰 숫자로 입력해 주세요.' });
+    var ir = industrialRate(input, R);
+    if (!ir) errors.push({ field: 'customRate', msg: '산재보험 요율을 0~20(%) 사이로 입력해 주세요.' });
+    if (errors.length) return { ok: false, errors: errors, warnings: [] };
+    pay = Math.round(pay);
+    var required = mh >= R.insuranceMinMonthlyHours;
+    var r = insuranceFor(pay, ir.rate, required, R);
+    var warnings = [];
+    if (pay < R.nationalPension.baseMin && required) warnings.push('국민연금은 기준소득월액 하한(' + fmt(R.nationalPension.baseMin) + '원)을 기준으로 계산했습니다.');
+    if (pay > R.nationalPension.baseMax) warnings.push('국민연금은 기준소득월액 상한(' + fmt(R.nationalPension.baseMax) + '원)을 기준으로 계산했습니다.');
+    return {
+      ok: true, errors: [], warnings: warnings, pay: pay, monthlyHours: mh, required: required,
+      employer: r.employer, employee: r.employee, iaRate: ir.rate, iaLabel: ir.label,
+      employerCost: pay + r.employer.total, workerNet: pay - r.employee.total
+    };
+  }
+
+  /* ---------- ④ 시급 ↔ 월급 ---------- */
+  // input: { direction: 'h2m'|'m2h', amount, weeklyHours, includeHoliday(bool) }
+  function hourlyMonthly(input, R) {
+    var errors = [], warnings = [];
+    var amt = num(input.amount), wh = num(input.weeklyHours);
+    if (!isFinite(amt) || amt < 1 || amt > 100000000) errors.push({ field: 'amount', msg: '금액을 1원 이상의 숫자로 입력해 주세요.' });
+    if (!isFinite(wh) || wh <= 0 || wh > 52) errors.push({ field: 'weeklyHours', msg: '주 근무시간은 0보다 크고 52시간 이하로 입력해 주세요.' });
+    if (errors.length) return { ok: false, errors: errors, warnings: warnings };
+    var include = input.includeHoliday !== false;
+    var hh = include ? holidayHoursFor(wh, R) : 0;
+    var hours = monthlyPaidHoursFor(wh, hh);
+    var hourly, monthly;
+    if (input.direction === 'm2h') { monthly = Math.round(amt); hourly = monthly / hours; }
+    else { hourly = Math.round(amt); monthly = Math.round(hourly * hours); }
+    var belowMin = hourly < R.minimumWage - 1e-9;
+    if (belowMin) warnings.push('환산 시급이 ' + R.minimumWageYear + '년 최저임금(' + fmt(R.minimumWage) + '원)보다 낮습니다.');
+    if (include && wh < R.weeklyHolidayMinHours) warnings.push('주 15시간 미만이라 주휴수당이 없습니다.');
+    return {
+      ok: true, errors: [], warnings: warnings, direction: input.direction === 'm2h' ? 'm2h' : 'h2m',
+      weeklyHours: wh, holidayHours: hh, monthlyPaidHours: hours, hourly: hourly, monthly: monthly,
+      annual: monthly * 12, belowMin: belowMin, minimumWage: R.minimumWage,
+      minMonthly: Math.round(R.minimumWage * hours)
+    };
+  }
+
+  /* ---------- ⑤ 야간수당 (주 야간시간 직접 입력 모드) ---------- */
+  function nightDirect(input, R) {
+    var errors = [];
+    var wage = num(input.wage), nh = num(input.nightHours);
+    if (!isFinite(wage) || wage < 1 || wage > 1000000) errors.push({ field: 'wage', msg: '시급을 1원 이상의 숫자로 입력해 주세요.' });
+    if (!isFinite(nh) || nh < 0 || nh > 56) errors.push({ field: 'nightHours', msg: '주 야간 근무시간을 0~56시간 사이로 입력해 주세요.' });
+    if (errors.length) return { ok: false, errors: errors, warnings: [] };
+    var calc = Math.round(nh * wage * 0.5 * WEEKS_PER_MONTH);
+    var warnings = [];
+    if (wage < R.minimumWage) warnings.push(R.minimumWageYear + '년 최저임금(' + fmt(R.minimumWage) + '원)보다 낮습니다.');
+    return {
+      ok: true, errors: [], warnings: warnings, wage: wage, nightHoursWeek: nh, fivePlus: !!input.fivePlus,
+      nightPremium: input.fivePlus ? calc : 0, refNightPremium: input.fivePlus ? 0 : calc,
+      nightHoursMonth: nh * WEEKS_PER_MONTH
+    };
+  }
+
+  /* ---------- ⑥ 퇴직금 ---------- */
+  function parseDate(s) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || ''));
+    if (!m) return null;
+    var d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    return d.getUTCMonth() === +m[2] - 1 ? d : null;
+  }
+  function addDays(d, n) { return new Date(d.getTime() + n * 864e5); }
+  function diffDays(a, b) { return Math.round((b - a) / 864e5); }
+  function minusMonths(d, n) {
+    var y = d.getUTCFullYear(), m = d.getUTCMonth() - n, day = d.getUTCDate();
+    var last = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+    return new Date(Date.UTC(y, m, Math.min(day, last)));
+  }
+  function iso(d) { return d.toISOString().slice(0, 10); }
+
+  // input: { start, lastDay, wage3, over15(bool), bonusAnnual, leavePayAnnual }
+  function severance(input) {
+    var errors = [];
+    var s = parseDate(input.start), l = parseDate(input.lastDay);
+    var w3 = num(input.wage3);
+    var bonus = input.bonusAnnual === '' || input.bonusAnnual == null ? 0 : num(input.bonusAnnual);
+    var leave = input.leavePayAnnual === '' || input.leavePayAnnual == null ? 0 : num(input.leavePayAnnual);
+    if (!s) errors.push({ field: 'start', msg: '입사일을 올바르게 입력해 주세요.' });
+    if (!l) errors.push({ field: 'lastDay', msg: '마지막 근무일을 올바르게 입력해 주세요.' });
+    if (s && l && l < s) errors.push({ field: 'lastDay', msg: '마지막 근무일이 입사일보다 빠릅니다.' });
+    if (!isFinite(w3) || w3 < 1 || w3 > 1000000000) errors.push({ field: 'wage3', msg: '최근 3개월 임금 총액을 1원 이상의 숫자로 입력해 주세요.' });
+    if (!isFinite(bonus) || bonus < 0) errors.push({ field: 'bonusAnnual', msg: '상여금은 0원 이상으로 입력해 주세요.' });
+    if (!isFinite(leave) || leave < 0) errors.push({ field: 'leavePayAnnual', msg: '연차수당은 0원 이상으로 입력해 주세요.' });
+    if (errors.length) return { ok: false, errors: errors, warnings: [] };
+    var retire = addDays(l, 1);                 // 퇴직일 = 마지막 근무일 다음 날
+    var days = diffDays(s, retire);             // 재직일수
+    var pStart = minusMonths(retire, 3);
+    var pDays = diffDays(pStart, retire);       // 산정 기간 일수
+    var base = w3 + bonus * 3 / 12 + leave * 3 / 12;
+    var avg = base / pDays;
+    var sevCalc = avg * 30 * days / 365;
+    var over15 = input.over15 !== false;
+    var eligible = days >= 365 && over15;
+    return {
+      ok: true, errors: [], warnings: [],
+      days: days, periodStart: iso(pStart), periodEnd: iso(l), periodDays: pDays,
+      avgWage: avg, severance: eligible ? Math.round(sevCalc) : 0, estimate: Math.round(sevCalc),
+      eligible: eligible, over15: over15, remainingDays: Math.max(0, 365 - days),
+      retireDate: iso(retire), payDeadline: iso(addDays(retire, 14)),
+      monthlyReserve: Math.round(avg * 30 / 12)
+    };
+  }
+
   function fmt(n) {
     return Math.round(n).toLocaleString('ko-KR');
   }
 
   var API = {
     calculate: calculate,
+    insuranceFor: insuranceFor,
+    weeklyHoliday: weeklyHoliday,
+    insurance: insurance,
+    hourlyMonthly: hourlyMonthly,
+    nightDirect: nightDirect,
+    severance: severance,
+    num: num,
     parseTime: parseTime,
     nightMinutes: nightMinutes,
     fmt: fmt,

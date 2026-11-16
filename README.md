@@ -31,3 +31,17 @@ node tests/calculator.test.js
 ## 매년 할 일
 
 1월에 `js/rates.js`의 숫자를 새해 기준으로 바꾸고, `tests/calculator.test.js`의 기준 금액도 함께 고친 뒤 테스트를 실행하세요. 화면 문구에 적힌 연도(2026)와 요율 표도 같이 바꿉니다.
+
+## 페이지 구성 (v2)
+
+- `/` 알바 인건비 계산기 (근무 시간표 드래그, 근로계약서 요약 포함)
+- `/calc/` 계산기 모음
+- `/calc/weekly-holiday-pay/` 주휴수당 · `/calc/insurance/` 4대보험 · `/calc/hourly-monthly/` 시급↔월급 · `/calc/night-pay/` 야간수당 · `/calc/severance/` 퇴직금
+- `/guide/` `/about/` `/contact/` `/privacy/` `/terms/` `404.html`
+
+## 자바스크립트 파일 역할
+
+- `js/rates.js` 요율 일정표 (매년 이 파일만 수정)
+- `js/calculator.js` 모든 계산식 (계산기 페이지가 함께 사용)
+- `js/days.js` 요일별 근무 입력칸 · `js/schedule-grid.js` 시간표 드래그 · `js/contract-summary.js` 근로계약서 요약
+- `js/ui.js` 메인 계산기 화면 · `js/page-kit.js` + `js/pages.js` 계산기 페이지 화면 · `js/common.js` 메뉴

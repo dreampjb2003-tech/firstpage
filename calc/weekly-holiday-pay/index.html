@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>주휴수당 계산기 2026 - 단시간 알바 주 15시간 기준 자동 판정</title>
+<meta name="description" content="근무 시간표를 칠하면 주휴수당 발생 여부와 금액을 바로 계산합니다. 주 15시간 미만 단시간 근로자 기준과 비례 계산법을 표로 정리했습니다.">
+<link rel="canonical" href="https://example.com/calc/weekly-holiday-pay/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="사장님계산기">
+<meta property="og:title" content="주휴수당 계산기 2026 - 단시간 알바 주 15시간 기준 자동 판정">
+<meta property="og:description" content="근무 시간표를 칠하면 주휴수당 발생 여부와 금액을 바로 계산합니다. 주 15시간 미만 단시간 근로자 기준과 비례 계산법을 표로 정리했습니다.">
+<meta property="og:url" content="https://example.com/calc/weekly-holiday-pay/">
+<meta property="og:image" content="https://example.com/images/og-image.png">
+<meta name="theme-color" content="#1f6f5c">
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../../css/style.css">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "WebApplication",
+   "name": "주휴수당 계산기",
+   "url": "https://example.com/calc/weekly-holiday-pay/",
+   "applicationCategory": "BusinessApplication",
+   "operatingSystem": "All",
+   "inLanguage": "ko",
+   "description": "근무 시간표를 칠하면 주휴수당 발생 여부와 금액을 바로 계산합니다. 주 15시간 미만 단시간 근로자 기준과 비례 계산법을 표로 정리했습니다.",
+   "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+   }
+  },
+  {
+   "@type": "FAQPage",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "5인 미만 매장도 주휴수당을 줘야 하나요?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "네. 주휴수당은 사업장 규모와 관계없이 적용됩니다. 상시근로자가 5인 미만이어도 1주 소정근로시간 15시간 이상, 개근 조건을 채우면 지급해야 합니다."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "계약서에는 주 14시간인데 실제로는 16시간씩 일하면요?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "계약서상 시간이 15시간 미만이어도 실제 근무가 반복적으로 15시간을 넘으면 주휴수당 지급 의무가 생길 수 있습니다. 계약 내용을 실제 근무에 맞게 고치는 것이 안전합니다."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "주휴일은 꼭 일요일이어야 하나요?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "아닙니다. 1주에 평균 1회 이상 유급휴일을 주면 되고 요일은 근로계약서에서 정할 수 있습니다. 평일에 쉬는 매장이라면 그 요일을 주휴일로 정하면 됩니다."
+     }
+    }
+   ]
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "홈",
+     "item": "https://example.com/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "계산기 모음",
+     "item": "https://example.com/calc/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "name": "주휴수당 계산기",
+     "item": "https://example.com/calc/weekly-holiday-pay/"
+    }
+   ]
+  }
+ ]
+}
+</script>
+</head>
+<body data-calc="weekly-holiday-pay">
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="../../" aria-label="사장님계산기 홈">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#1f6f5c"/><rect x="8" y="6" width="16" height="20" rx="3" fill="#fff"/><rect x="10.5" y="8.5" width="11" height="4" rx="1" fill="#1f6f5c"/><circle cx="12" cy="16.5" r="1.4" fill="#1f6f5c"/><circle cx="16" cy="16.5" r="1.4" fill="#1f6f5c"/><circle cx="20" cy="16.5" r="1.4" fill="#1f6f5c"/><circle cx="12" cy="21" r="1.4" fill="#1f6f5c"/><circle cx="16" cy="21" r="1.4" fill="#1f6f5c"/><circle cx="20" cy="21" r="1.4" fill="#e8a33d"/></svg>
+      사장님계산기
+    </a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="메뉴 열기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <nav class="nav" id="site-nav" aria-label="주 메뉴">
+      <ul>
+        <li><a href="../../calc/" aria-current="page">계산기 모음</a></li>
+        <li><a href="../../guide/">활용 가이드</a></li>
+        <li><a href="../../about/">소개</a></li>
+        <li><a href="../../contact/">문의</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <nav class="crumbs" aria-label="현재 위치"><a href="../../">홈</a> › <a href="../../calc/">계산기 모음</a> › <span aria-current="page">주휴수당 계산기</span></nav>
+    <h1>주휴수당 계산기 — 주 15시간 기준 자동 판정</h1>
+    <p class="lead">근무 시간표를 칠하거나 주 근무시간을 넣으면 주휴수당이 생기는지, 생긴다면 한 주와 한 달에 얼마인지 바로 계산합니다. 주 15시간 미만으로 일하는 단시간 알바의 기준도 함께 정리했습니다.</p>
+    <p class="muted">입력한 내용은 서버로 전송되지 않고 이 브라우저 안에서만 계산됩니다. · <a href="../../privacy/">개인정보처리방침</a></p>
+
+    <section class="card calc" aria-labelledby="calc-title">
+      <h2 id="calc-title">계산하기</h2>
+      <p class="muted">데이터 기준일: <span data-r="effectiveFrom">2026-01-01</span> 적용 요율 · 공식 고시 확인일: <span data-r="verified" class="todo">[직접 작성 필요]</span></p>
+      <noscript><div class="note note-warn">이 계산기는 자바스크립트가 필요합니다.</div></noscript>
+      <form id="calc-form" novalidate>
+        <div class="presets" role="group" aria-label="입력 도우미">
+          <button type="button" class="btn btn-sm" data-preset="example">예시 값 넣기</button>
+          <button type="button" class="btn btn-sm" data-preset="clear">지우기</button>
+        </div>
+        <div class="field">
+          <label for="wage" id="wage-label">시급</label>
+          <div class="input-unit">
+            <input id="wage" name="wage" type="text" inputmode="numeric" autocomplete="off">
+            <span>원</span>
+          </div><p class="hint"><span data-r="mwYear">2026</span>년 최저임금은 시간당 <span data-r="mw">10,320</span>원입니다.</p>
+        </div>
+        <div class="field">
+          <span class="field-label" id="lbl-mode">근무시간 입력 방법</span>
+          <div class="seg" role="radiogroup" aria-labelledby="lbl-mode">
+            <label><input type="radio" name="mode" value="schedule" checked><span>근무 시간표로</span></label>
+            <label><input type="radio" name="mode" value="direct"><span>주 시간 직접 입력</span></label>
+          </div>
+        </div>
+        <div class="field" data-show-when="mode=schedule">
+          <span class="field-label" id="lbl-days">요일별 근무시간</span>
+          <div class="presets" role="group" aria-label="스케줄 빠른 입력"><button type="button" class="btn btn-sm" data-preset="full">평일 풀타임 (주40h)</button><button type="button" class="btn btn-sm" data-preset="weekend">주말 알바 (토·일 8h)</button><button type="button" class="btn btn-sm" data-preset="evening">평일 저녁 4h</button></div>
+          <div class="sgrid" id="schedule-grid"></div>
+          <details class="days-detail">
+            <summary>요일별 시각 직접 입력 · 휴게시간</summary>
+            <div class="days" id="days" aria-labelledby="lbl-days"></div>
+          </details>
+        </div>
+        <div class="field" data-show-when="mode=direct">
+          <label for="weeklyHours" id="weeklyHours-label">1주 소정근로시간</label>
+          <div class="input-unit">
+            <input id="weeklyHours" name="weeklyHours" type="text" inputmode="decimal" autocomplete="off">
+            <span>시간</span>
+          </div><p class="hint">근로계약서에 정한 1주 근무시간(휴게 제외)을 넣으세요.</p>
+        </div>
+        <div class="field">
+          <span class="field-label" id="lbl-attended">그 주 개근 여부</span>
+          <div class="seg" role="radiogroup" aria-labelledby="lbl-attended">
+            <label><input type="radio" name="attended" value="1" checked><span>개근</span></label>
+            <label><input type="radio" name="attended" value="0"><span>결근 있음</span></label>
+          </div>
+          <p class="hint">지각·조퇴는 결근이 아닙니다.</p>
+        </div>
+        <div id="errors" aria-live="assertive"></div>
+        <button type="submit" class="btn btn-primary no-print">계산하기</button>
+      </form>
+      <section class="result" id="result" aria-labelledby="result-title" hidden>
+        <h2 id="result-title">계산 결과</h2>
+        <div id="result-body"></div>
+        <div class="actions">
+          <button type="button" class="btn" id="btn-print">인쇄하기</button>
+          <button type="button" class="btn" id="btn-copy">입력값 링크 복사</button>
+          <button type="button" class="btn" id="btn-reset">처음부터 다시</button>
+        </div>
+      </section>
+    </section>
+
+    <!-- 광고 자리 1: 결과 아래 (승인 후 광고 코드 삽입) -->
+    <div class="ad-slot" aria-hidden="true"></div>
+
+    <section aria-labelledby="how-title">
+      <h2 id="how-title">이렇게 계산합니다</h2>
+      <p>주휴수당은 1주 동안 정해진 날을 모두 일한 근로자에게 주는 <strong>유급 휴일의 임금</strong>입니다. 쉬는 날에도 하루치 임금을 받는다고 이해하면 쉽습니다. 다음 두 조건을 모두 채우면 발생합니다.</p>
+      <ol>
+        <li><strong>1주 소정근로시간이 15시간 이상</strong>일 것 — 근로계약서에 정한 시간이 기준입니다. 실제 근무가 계속 15시간을 넘는다면 실제 시간을 기준으로 판단될 수 있습니다.</li>
+        <li><strong>그 주에 정해진 근무일을 모두 나왔을 것</strong> — 결근이 있으면 그 주는 발생하지 않지만, 지각·조퇴는 결근이 아닙니다.</li>
+      </ol>
+      <p>주휴시간은 <strong>1주 소정근로시간 ÷ 40 × 8시간</strong>으로 계산하고, 최대 8시간입니다. 주휴수당은 주휴시간에 시급을 곱한 금액입니다. 한 달 금액은 1년을 12달로 나눈 평균 주 수(약 4.345주)를 곱해 구합니다. 이 계산기는 근무 시간표의 휴게시간을 뺀 실제 근로시간을 소정근로시간으로 봅니다.</p>
+      <p>주휴수당은 사업장 규모와 관계없이 적용됩니다. 상시근로자가 5인 미만인 작은 매장도 조건을 채우면 반드시 지급해야 합니다.</p>
+    </section>
+
+    <section aria-labelledby="short-title">
+      <h2 id="short-title">단시간 근로자 주휴수당</h2>
+      <p>하루 몇 시간, 일주일에 며칠만 일하는 단시간 알바도 주 15시간을 넘으면 주휴수당을 받습니다. 금액은 일한 시간에 비례하므로 주 20시간이면 주 40시간 근무자의 절반인 4시간분이 됩니다. 시급 10,320원 기준으로 정리하면 다음과 같습니다.</p>
+<div class="table-scroll"><table class="fit"><thead><tr><th>주 근무</th><th class="num">주휴시간</th><th class="num">주휴수당 (월)</th><th class="num">주휴 포함 월급</th></tr></thead><tbody><tr><td>14시간</td><td class="num">없음</td><td class="num">0원</td><td class="num">629,520원</td></tr><tr><td>15시간</td><td class="num">3시간</td><td class="num">134,529원</td><td class="num">815,280원</td></tr><tr><td>20시간</td><td class="num">4시간</td><td class="num">179,371원</td><td class="num">1,083,600원</td></tr><tr><td>25시간</td><td class="num">5시간</td><td class="num">224,214원</td><td class="num">1,351,920원</td></tr><tr><td>32시간</td><td class="num">6.4시간</td><td class="num">286,994원</td><td class="num">1,723,440원</td></tr><tr><td>40시간</td><td class="num">8시간</td><td class="num">358,743원</td><td class="num">2,156,880원</td></tr></tbody></table></div>
+      <p><strong>14시간과 15시간의 차이</strong>가 가장 큽니다. 1시간 차이로 주휴수당뿐 아니라 퇴직금, 연차유급휴가(5인 이상), 4대보험 가입 의무까지 함께 달라집니다. 그래서 일부러 주 14시간 이하로 여러 명을 나눠 쓰는 경우도 있지만, 대타나 연장으로 시간이 늘어나는 순간 모든 의무가 한꺼번에 생기므로 관리가 어렵습니다.</p>
+    </section>
+
+    <section aria-labelledby="ex-title">
+      <h2 id="ex-title">계산 예시</h2>
+      <article>
+        <h3>예시 1. 평일 오후 4시간 알바 (주 20시간)</h3>
+        <p>월~금 오후 1시부터 5시까지, 휴게 없이 시급 10,320원으로 일하는 경우입니다. 주 20시간이므로 주휴시간은 20 ÷ 40 × 8 = 4시간, 주휴수당은 한 주에 41,280원입니다. 한 달로 바꾸면 약 179,371원이고, 주휴수당을 포함한 월급은 1,083,600원(월 105시간)입니다.</p>
+      </article>
+      <article>
+        <h3>예시 2. 주 14시간과 15시간 비교</h3>
+        <p>주말 이틀 7시간씩(14시간)이면 주휴수당이 없지만, 하루를 7시간 30분으로 늘려 15시간이 되면 매주 30,960원, 한 달 약 134,529원의 주휴수당이 생깁니다. 계산기에서 토·일 시간을 조금씩 늘려 보며 경계를 확인해 보세요.</p>
+      </article>
+      <div class="owner-box"><p><span class="todo">[직접 작성 필요]</span> 주휴수당과 관련해 직접 겪은 상황을 2~3문장으로 적어 주세요. (예: 스케줄 변경으로 15시간을 넘겨 주휴수당이 생겼던 일)</p></div>
+    </section>
+
+
+    <!-- 광고 자리 2: FAQ 위 (승인 후 광고 코드 삽입) -->
+    <div class="ad-slot" aria-hidden="true"></div>
+
+    <section class="faq" aria-labelledby="faq-title">
+      <h2 id="faq-title">자주 묻는 질문</h2>
+      <details>
+        <summary>5인 미만 매장도 주휴수당을 줘야 하나요?</summary>
+        <div><p>네. 주휴수당은 사업장 규모와 관계없이 적용됩니다. 상시근로자가 5인 미만이어도 1주 소정근로시간 15시간 이상, 개근 조건을 채우면 지급해야 합니다.</p></div>
+      </details>
+      <details>
+        <summary>계약서에는 주 14시간인데 실제로는 16시간씩 일하면요?</summary>
+        <div><p>계약서상 시간이 15시간 미만이어도 실제 근무가 반복적으로 15시간을 넘으면 주휴수당 지급 의무가 생길 수 있습니다. 계약 내용을 실제 근무에 맞게 고치는 것이 안전합니다.</p></div>
+      </details>
+      <details>
+        <summary>주휴일은 꼭 일요일이어야 하나요?</summary>
+        <div><p>아닙니다. 1주에 평균 1회 이상 유급휴일을 주면 되고 요일은 근로계약서에서 정할 수 있습니다. 평일에 쉬는 매장이라면 그 요일을 주휴일로 정하면 됩니다.</p></div>
+      </details>
+    </section>
+
+    <section aria-labelledby="rel-title">
+      <h2 id="rel-title">함께 쓰면 좋은 계산기</h2>
+      <ul class="rel-list"><li><a href="../../">알바 인건비 계산기</a> — 시급과 근무 시간표로 사장님 실제 월 인건비</li><li><a href="../../calc/hourly-monthly/">시급 ↔ 월급 변환기</a> — 주휴수당 포함 월 209시간 기준 변환</li><li><a href="../../calc/severance/">알바 퇴직금 계산기</a> — 입사일·퇴사일로 예상 퇴직금</li></ul>
+    </section>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <nav aria-label="계산기 바로가기">
+    <p class="foot-title">계산기</p>
+    <ul>
+      <li><a href="../../">알바 인건비</a></li>
+      <li><a href="../../calc/weekly-holiday-pay/">주휴수당</a></li>
+      <li><a href="../../calc/insurance/">4대보험 사업주 부담금</a></li>
+      <li><a href="../../calc/hourly-monthly/">시급 ↔ 월급 변환</a></li>
+      <li><a href="../../calc/night-pay/">야간수당</a></li>
+      <li><a href="../../calc/severance/">알바 퇴직금</a></li>
+    </ul>
+    </nav>
+    <ul>
+      <li><a href="../../about/">소개</a></li>
+      <li><a href="../../contact/">문의</a></li>
+      <li><a href="../../privacy/">개인정보처리방침</a></li>
+      <li><a href="../../terms/">이용약관</a></li>
+    </ul>
+    <p>본 결과는 참고용이며 법적 효력이 없습니다. 중요한 결정은 노무사·세무사 또는 관할 기관에 확인하세요.</p>
+    <p>© 2026 사장님계산기</p>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="../../js/rates.js" defer></script>
+<script src="../../js/calculator.js" defer></script>
+<script src="../../js/days.js" defer></script>
+<script src="../../js/schedule-grid.js" defer></script>
+<script src="../../js/page-kit.js" defer></script>
+<script src="../../js/pages.js" defer></script>
+<script src="../../js/common.js" defer></script>
+</body>
+</html>

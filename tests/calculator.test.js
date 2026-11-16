@@ -82,5 +82,56 @@ eq('2027년 최저임금 미입력 알림', R27.minimumWageStale ? 1 : 0, 1);
 eq('2026년에는 알림 없음', R26.minimumWageStale ? 1 : 0, 0);
 eq('2027년 국민연금 (기준 예시)', C.calculate(base(), R27).insurance.np, 107840);
 
+// ---------- v2 계산기 (PLAN.md v2 5-3 기준값) ----------
+r = C.calculate(base(), R);
+eq('실제 시간당 비용 배수 약 1.43 (산재 포함)', Math.round(r.realMultiple*100)/100, 1.43);
+eq('실제 시간당 비용 (산재 제외) 약 14,680', Math.round((r.totalPerPerson-r.insurance.ia)/(40*C.WEEKS_PER_MONTH)/10)*10, 14680);
+
+r = C.weeklyHoliday({ wage: 10320, weeklyHours: 20, attended: true }, R);
+eq('주휴: 주 20시간 → 4시간', r.holidayHours, 4);
+eq('주휴: 주 20시간 주휴수당(주)', r.weeklyPay, 41280);
+r = C.weeklyHoliday({ wage: 10320, weeklyHours: 20, attended: false }, R);
+eq('주휴: 개근 아님 → 0원', r.weeklyPay, 0);
+r = C.weeklyHoliday({ wage: 10320, weeklyHours: 14, attended: true }, R);
+eq('주휴: 14시간 → 1시간 남음', r.remainingTo15, 1);
+r = C.weeklyHoliday({ wage: 10320, weeklyHours: 45, attended: true }, R);
+eq('주휴: 45시간 → 상한 8시간', r.holidayHours, 8);
+r = C.weeklyHoliday({ wage: '', weeklyHours: 20 }, R); eq('주휴: 시급 빈칸 오류', r.ok ? 0 : 1, 1);
+
+r = C.insurance({ pay: 2156880, monthlyHours: 174, industryId: 'food' }, R);
+eq('4대보험 국민연금', r.employer.np, 102450); eq('4대보험 건강', r.employer.hi, 77530);
+eq('4대보험 장기요양', r.employer.ltc, 10180); eq('4대보험 고용', r.employer.ei, 24800);
+eq('4대보험 근로자 고용 0.9%', r.employee.ei, 19410);
+r = C.insurance({ pay: 500000, monthlyHours: 52, industryId: 'food' }, R);
+eq('4대보험 월 60시간 미만 → 국민연금 0', r.employer.np, 0);
+eq('4대보험 월 60시간 미만 → 산재는 계산', r.employer.ia > 0 ? 1 : 0, 1);
+r = C.insurance({ pay: 300000, monthlyHours: 80, industryId: 'food' }, R);
+eq('4대보험 국민연금 하한 적용', r.employer.np, 19000);
+r = C.insurance({ pay: 0, monthlyHours: 174, industryId: 'food' }, R); eq('4대보험 0원 오류', r.ok ? 0 : 1, 1);
+
+r = C.hourlyMonthly({ direction: 'h2m', amount: 10320, weeklyHours: 40, includeHoliday: true }, R);
+eq('시급→월급 209시간', r.monthlyPaidHours, 209); eq('시급→월급 금액', r.monthly, 2156880);
+r = C.hourlyMonthly({ direction: 'm2h', amount: 2500000, weeklyHours: 40, includeHoliday: true }, R);
+eq('월급→시급 약 11,962원', Math.round(r.hourly), 11962);
+r = C.hourlyMonthly({ direction: 'm2h', amount: 2000000, weeklyHours: 40, includeHoliday: true }, R);
+eq('월급 200만원 최저임금 미달', r.belowMin ? 1 : 0, 1);
+r = C.hourlyMonthly({ direction: 'h2m', amount: 10320, weeklyHours: 60 }, R); eq('주 52시간 초과 오류', r.ok ? 0 : 1, 1);
+
+r = C.nightDirect({ wage: 10320, nightHours: 40, fivePlus: true }, R);
+eq('야간 직접입력 40시간 → 896,857원', r.nightPremium, 896857);
+r = C.nightDirect({ wage: 10320, nightHours: 40, fivePlus: false }, R);
+eq('야간 5인 미만 → 0원 + 참고', r.nightPremium === 0 && r.refNightPremium === 896857 ? 1 : 0, 1);
+
+r = C.severance({ start: '2025-01-01', lastDay: '2026-06-30', wage3: 6470640, over15: true });
+eq('퇴직금 재직일수 546', r.days, 546); eq('퇴직금 산정기간 91일', r.periodDays, 91);
+eq('퇴직금 약 3,191,001원', r.severance, 3191001);
+r = C.severance({ start: '2025-08-01', lastDay: '2026-06-30', wage3: 6470640, over15: true });
+eq('퇴직금 11개월 → 대상 아님', r.eligible ? 1 : 0, 0); eq('퇴직금 남은 일수 > 0', r.remainingDays > 0 ? 1 : 0, 1);
+r = C.severance({ start: '2025-01-01', lastDay: '2026-06-30', wage3: 6470640, over15: false });
+eq('퇴직금 주 15시간 미만 → 0원', r.severance, 0);
+r = C.severance({ start: '2026-06-30', lastDay: '2025-01-01', wage3: 1 }); eq('퇴직금 날짜 역전 오류', r.ok ? 0 : 1, 1);
+r = C.severance({ start: '2025-01-31', lastDay: '2026-05-30', wage3: 6000000 });
+eq('퇴직금 말일 처리(5/31-3개월=2/28)', r.periodStart === '2026-02-28' ? 1 : 0, 1);
+
 console.log(fail ? '\n실패 ' + fail + '건' : '\n전체 통과');
 process.exit(fail ? 1 : 0);

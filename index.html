@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>사장님계산기 - 알바 인건비·주휴수당·4대보험 계산기 (2026)</title>
-<meta name="description" content="시급과 근무 스케줄만 입력하면 주휴수당, 4대보험 사업주 부담금, 야간·연장수당, 퇴직금까지 합친 월 총 인건비를 계산합니다. 3.3%와 4대보험 비용 비교 포함.">
+<title>사장님계산기 - 알바 인건비 계산기, 주휴수당·4대보험·퇴직금 한 번에 (2026)</title>
+<meta name="description" content="시급과 근무 시간표만 넣으면 주휴수당, 4대보험 사업주 부담금, 야간수당, 퇴직금까지 더한 사장님 실제 월 인건비를 계산합니다. 근로계약서 핵심 조항 요약 포함.">
 <link rel="canonical" href="https://example.com/">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="사장님계산기">
-<meta property="og:title" content="사장님계산기 - 알바 인건비·주휴수당·4대보험 계산기 (2026)">
-<meta property="og:description" content="시급과 근무 스케줄만 입력하면 사장님이 실제로 쓰는 월 총 인건비를 계산합니다.">
+<meta property="og:title" content="사장님계산기 - 알바 인건비 계산기, 주휴수당·4대보험·퇴직금 한 번에 (2026)">
+<meta property="og:description" content="시급과 근무 시간표만 넣으면 주휴수당, 4대보험 사업주 부담금, 야간수당, 퇴직금까지 더한 사장님 실제 월 인건비를 계산합니다. 근로계약서 핵심 조항 요약 포함.">
 <meta property="og:url" content="https://example.com/">
 <meta property="og:image" content="https://example.com/images/og-image.png">
 <meta name="theme-color" content="#1f6f5c">
@@ -61,7 +61,7 @@
     </button>
     <nav class="nav" id="site-nav" aria-label="주 메뉴">
       <ul>
-        <li><a href="./" aria-current="page">계산기</a></li>
+        <li><a href="./calc/">계산기 모음</a></li>
         <li><a href="./guide/">활용 가이드</a></li>
         <li><a href="./about/">소개</a></li>
         <li><a href="./contact/">문의</a></li>
@@ -111,7 +111,11 @@
             <button type="button" class="btn btn-sm" data-preset="evening">평일 저녁 4h</button>
             <button type="button" class="btn btn-sm" data-preset="night">평일 야간 (22~07시)</button>
           </div>
-          <div class="days" id="days" aria-labelledby="lbl-days"></div>
+          <div class="sgrid" id="schedule-grid"></div>
+          <details class="days-detail" open>
+            <summary>요일별 시각 직접 입력 · 휴게시간</summary>
+            <div class="days" id="days" aria-labelledby="lbl-days"></div>
+          </details>
           <p class="hint">종료 시각이 시작보다 이르면 자정을 넘긴 근무로 계산합니다. 휴게시간은 근무시간에서 뺍니다.</p>
         </div>
 
@@ -157,6 +161,8 @@
           <button type="button" class="btn" id="btn-reset">처음부터 다시</button>
         </div>
       </section>
+
+      <section class="contract" id="contract" aria-labelledby="cs-title" hidden></section>
     </section>
 
     <!-- 광고 자리 1: 결과 카드 아래 (승인 후 광고 코드 삽입) -->
@@ -166,9 +172,25 @@
       <h2 id="steps-title">3단계로 계산하기</h2>
       <ol>
         <li><strong>사업장 정보 고르기</strong> — 상시근로자가 5인 이상인지, 업종이 무엇인지 고릅니다. 5인 이상이면 야간·연장 가산수당이 계산에 들어가고, 업종에 따라 산재보험 요율이 달라집니다.</li>
-        <li><strong>시급과 근무 스케줄 넣기</strong> — 시급을 적고 일하는 요일을 체크한 뒤 출근·퇴근 시각과 휴게시간을 넣습니다. 자주 쓰는 형태는 '평일 풀타임', '주말 알바' 같은 버튼으로 한 번에 채울 수 있습니다. 요일마다 시간이 달라도 따로 넣으면 됩니다.</li>
-        <li><strong>결과 확인하고 비교하기</strong> — 맨 위 초록색 카드가 사장님이 매달 실제로 쓰는 돈입니다. 그 아래 상세 내역에서 항목별 금액과 계산식을, 비교표에서 3.3% 처리와 4대보험 가입의 차이를 확인하세요. '입력값 링크 복사'로 동업자나 세무 담당자에게 같은 조건을 그대로 보낼 수 있습니다.</li>
+        <li><strong>시급과 근무 시간표 넣기</strong> — 시급을 적고 시간표에서 일하는 시간을 칠합니다. PC에서는 마우스로 드래그하고, 휴대폰에서는 시작 칸과 끝 칸을 차례로 누르면 됩니다. 칠하는 즉시 주휴수당이 생기는지 시간표 위에 표시되고, 휴게시간은 아래 '요일별 시각 직접 입력'에서 고칠 수 있습니다. '평일 풀타임', '주말 알바' 버튼으로 한 번에 채울 수도 있습니다.</li>
+        <li><strong>결과 확인하고 비교하기</strong> — 맨 위 초록색 카드가 사장님이 매달 실제로 쓰는 돈입니다. 그 아래 상세 내역에서 항목별 금액과 계산식을, 비교표에서 3.3% 처리와 4대보험 가입의 차이를 확인하세요. 맨 아래에는 이 조건으로 근로계약서를 쓸 때 꼭 적어야 할 항목이 요약표로 정리됩니다. '입력값 링크 복사'로 동업자나 세무 담당자에게 같은 조건을 그대로 보낼 수 있습니다.</li>
       </ol>
+    </section>
+
+    <section aria-labelledby="x14-title">
+      <h2 id="x14-title">시급의 1.4배가 실제 인건비인 이유</h2>
+      <p>알바를 뽑을 때 가장 흔한 실수는 "시급 × 일한 시간"만 인건비로 잡는 것입니다. 시급 10,320원, 주 40시간 근무를 기준으로 사장님이 한 달에 실제로 쓰는 돈을 나눠 보면 다음과 같습니다.</p>
+      <div class="table-scroll"><table class="fit">
+        <thead><tr><th>항목</th><th class="num">월 금액</th><th class="num">일한 시간 임금 대비</th></tr></thead>
+        <tbody>
+          <tr><td>일한 시간에 대한 임금 (월 174시간)</td><td class="num">1,795,680원</td><td class="num">100%</td></tr>
+          <tr><td>주휴수당 (월 35시간)</td><td class="num">361,200원</td><td class="num">+20.1%</td></tr>
+          <tr><td>4대보험 사업주 부담 (산재 제외)</td><td class="num">214,960원</td><td class="num">+12.0%</td></tr>
+          <tr><td>퇴직금 적립 (월급 ÷ 12)</td><td class="num">179,740원</td><td class="num">+10.0%</td></tr>
+          <tr><td><strong>합계</strong></td><td class="num"><strong>2,551,580원</strong></td><td class="num"><strong>142.1%</strong></td></tr>
+        </tbody>
+      </table></div>
+      <p>주휴수당이 일한 시간 임금의 약 20%, 사업주 4대보험이 주휴수당을 포함한 월급의 약 10%, 퇴직금 적립이 월급의 8.3%(12분의 1)를 차지합니다. 이것을 모두 더하면 <strong>실제 시간당 비용은 시급의 약 1.42배</strong>, 시간당 약 14,680원이 됩니다. 여기에 업종별 산재보험료가 조금 더해집니다. 매출 대비 인건비 비율을 계산할 때도 시급이 아니라 이 실제 비용을 기준으로 삼아야 예산이 어긋나지 않습니다. 계산기 결과의 초록색 카드에 표시되는 '실제 시간당 비용'이 바로 이 숫자입니다.</p>
     </section>
 
     <section aria-labelledby="how-title">
@@ -325,6 +347,17 @@
       </div>
     </section>
 
+    <section aria-labelledby="more-title">
+      <h2 id="more-title">항목별로 자세히 계산하기</h2>
+      <ul class="calc-cards">
+        <li class="calc-card"><a href="./calc/weekly-holiday-pay/"><strong>주휴수당 계산기</strong><span>주 15시간 기준 자동 판정, 단시간 근로자 포함</span></a></li>
+        <li class="calc-card"><a href="./calc/insurance/"><strong>4대보험 사업주 부담금 계산기</strong><span>월 급여로 사장님·알바생 보험료 계산</span></a></li>
+        <li class="calc-card"><a href="./calc/hourly-monthly/"><strong>시급 ↔ 월급 변환기</strong><span>주휴수당 포함 월 209시간 기준 변환</span></a></li>
+        <li class="calc-card"><a href="./calc/night-pay/"><strong>야간수당 계산기</strong><span>밤 10시~오전 6시 근무 가산수당</span></a></li>
+        <li class="calc-card"><a href="./calc/severance/"><strong>알바 퇴직금 계산기</strong><span>입사일·퇴사일로 예상 퇴직금</span></a></li>
+      </ul>
+    </section>
+
     <div class="cta">
       <p>주휴수당 판정법, 3.3% 처리의 위험, 인건비 줄이는 합법적 방법까지 더 알고 싶다면</p>
       <a class="btn btn-primary" href="./guide/">사장님 인건비 완전정복 가이드 보기</a>
@@ -334,6 +367,17 @@
 
 <footer class="site-footer">
   <div class="wrap">
+    <nav aria-label="계산기 바로가기">
+    <p class="foot-title">계산기</p>
+    <ul>
+      <li><a href="./">알바 인건비</a></li>
+      <li><a href="./calc/weekly-holiday-pay/">주휴수당</a></li>
+      <li><a href="./calc/insurance/">4대보험 사업주 부담금</a></li>
+      <li><a href="./calc/hourly-monthly/">시급 ↔ 월급 변환</a></li>
+      <li><a href="./calc/night-pay/">야간수당</a></li>
+      <li><a href="./calc/severance/">알바 퇴직금</a></li>
+    </ul>
+    </nav>
     <ul>
       <li><a href="./about/">소개</a></li>
       <li><a href="./contact/">문의</a></li>
@@ -347,6 +391,9 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="./js/rates.js" defer></script>
 <script src="./js/calculator.js" defer></script>
+<script src="./js/days.js" defer></script>
+<script src="./js/schedule-grid.js" defer></script>
+<script src="./js/contract-summary.js" defer></script>
 <script src="./js/ui.js" defer></script>
 <script src="./js/common.js" defer></script>
 </body>

@@ -50,22 +50,7 @@
     sel.innerHTML = html;
   }
 
-  function buildDays() {
-    var html = '';
-    C.DAY_NAMES.forEach(function (n, i) {
-      html +=
-        '<div class="day" id="day' + i + '">' +
-          '<label class="day-head"><input type="checkbox" data-k="on" data-i="' + i + '"> ' + n + '요일' +
-          '<span class="day-sum" id="daysum' + i + '"></span></label>' +
-          '<div class="day-body">' +
-            '<label>시작<input type="time" step="600" data-k="start" data-i="' + i + '"></label>' +
-            '<label>종료<input type="time" step="600" data-k="end" data-i="' + i + '"></label>' +
-            '<label class="brk">휴게(분)<input type="number" inputmode="numeric" min="0" max="600" step="10" data-k="brk" data-i="' + i + '"></label>' +
-          '</div>' +
-        '</div>';
-    });
-    daysBox.innerHTML = html;
-  }
+  function buildDays() { window.SajangDays.build(daysBox); }
 
   /* ---------- 상태 읽기/쓰기 ---------- */
   function radio(name) {
@@ -78,16 +63,7 @@
   }
 
   function readState() {
-    var days = [];
-    for (var i = 0; i < 7; i++) {
-      var q = function (k) { return daysBox.querySelector('[data-i="' + i + '"][data-k="' + k + '"]'); };
-      days.push({
-        on: q('on').checked,
-        start: q('start').value,
-        end: q('end').value,
-        brk: q('brk').value === '' ? '' : Number(q('brk').value)
-      });
-    }
+    var days = window.SajangDays.read(daysBox);
     return {
       wage: $('wage').value.replace(/,/g, '').trim(),
       fivePlus: radio('fivePlus') === '1',
@@ -110,16 +86,7 @@
     writeDays(s.days);
   }
 
-  function writeDays(days) {
-    for (var i = 0; i < 7; i++) {
-      var d = days[i] || DEFAULT.days[i];
-      var q = function (k) { return daysBox.querySelector('[data-i="' + i + '"][data-k="' + k + '"]'); };
-      q('on').checked = !!d.on;
-      q('start').value = d.start;
-      q('end').value = d.end;
-      q('brk').value = d.brk;
-    }
-  }
+  function writeDays(days) { window.SajangDays.write(daysBox, days); }
 
   /* ---------- 저장 (이 기기에만) ---------- */
   function save(s) {
@@ -186,22 +153,7 @@
   function won(n) { return fmt(n) + '원'; }
   function pct(r) { return (Math.round(r * 100000) / 1000) + '%'; }
 
-  function updateDaySums(s) {
-    s.days.forEach(function (d, i) {
-      var box = $('day' + i);
-      box.classList.toggle('on', !!d.on);
-      var sum = '';
-      if (d.on) {
-        var a = C.parseTime(d.start), b = C.parseTime(d.end);
-        if (a !== null && b !== null && a !== b) {
-          if (b < a) b += 1440;
-          var w = b - a - (Number(d.brk) || 0);
-          if (w > 0) sum = hm(w / 60);
-        }
-      }
-      $('daysum' + i).textContent = sum;
-    });
-  }
+  function updateDaySums(s) { window.SajangDays.sums(daysBox, s.days); }
 
   function clearInvalid() {
     form.querySelectorAll('.invalid').forEach(function (el) { el.classList.remove('invalid'); });
@@ -212,7 +164,7 @@
     else if (field === 'customRate') $('customRate').classList.add('invalid');
     else if (field === 'days') daysBox.classList.add('invalid');
     else if (/^day\d$/.test(field)) {
-      $(field).querySelectorAll('input[type="time"], input[type="number"]').forEach(function (el) { el.classList.add('invalid'); });
+      daysBox.querySelector('[data-day="' + field.slice(3) + '"]').querySelectorAll('input[type="time"], input[type="number"]').forEach(function (el) { el.classList.add('invalid'); });
     }
   }
 
@@ -263,7 +215,9 @@
       '<div class="sub">' +
         '<div>' + res.headcount + '명 합계<b>' + won(res.totalAll) + '</b></div>' +
         '<div>연간 환산<b>' + won(res.annual) + '</b></div>' +
-      '</div></div>';
+      '</div>' +
+      (res.realHourly ? '<div class="real">실제 시간당 비용 <b>약 ' + won(Math.round(res.realHourly / 10) * 10) + '</b> · 시급의 <b>' + res.realMultiple.toFixed(2) + '배</b></div>' : '') +
+      '</div>';
 
     // 판정 배지
     function badge(ok, yes, no) { return '<li class="badge ' + (ok ? 'yes' : 'no') + '">' + (ok ? '✓ ' + yes : '✕ ' + no) + '</li>'; }
@@ -332,6 +286,8 @@
     updateDaySums(s);
     var res = C.calculate(s, R);
     render(res, s);
+    if (grid) grid.refresh(s.days);
+    if (contractBox) window.SajangContract.update(contractBox, s, res);
     save(s);
     if (opts && opts.scroll && res.ok) resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
     return s;
@@ -387,9 +343,17 @@
   }
 
   /* ---------- 시작 ---------- */
+  window.sajangToast = toast;
   fillRates();
   buildIndustry();
   buildDays();
+  var grid = null, contractBox = $('contract');
+  if ($('schedule-grid') && window.SajangGrid) {
+    grid = window.SajangGrid.mount($('schedule-grid'), {
+      onSet: function (i, start, end) { window.SajangDays.setDay(daysBox, i, start, end); run(); }
+    });
+  }
+  if (contractBox && window.SajangContract) window.SajangContract.mount(contractBox);
   writeState(fromQuery(location.search) || load() || clone(DEFAULT));
 
   form.addEventListener('input', function () { run(); });
