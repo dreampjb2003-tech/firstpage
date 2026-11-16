@@ -133,7 +133,9 @@ th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: l
 th { background: var(--surface-2); font-weight: 700; white-space: nowrap; }
 tr:last-child td { border-bottom: 0; }
 table.fit { min-width: 0; }
-table.fit th, table.fit td { padding: 10px; }
+table.fit th, table.fit td { padding: 10px 8px; }
+table.fit th, table.fit td.num { white-space: normal; }
+@media (max-width: 420px) { table.fit { font-size: 14px; } }
 td.num, th.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 /* 알림 박스 */
