@@ -73,7 +73,7 @@
 <main>
   <div class="wrap">
     <h1>알바 인건비 계산기 — 주휴수당·4대보험·퇴직금까지 한 번에</h1>
-    <p class="lead">시급 10,320원짜리 알바생을 쓰면 사장님 통장에서는 시간당 얼마가 나갈까요? 시급과 요일별 근무시간만 넣으면 주휴수당, 4대보험 사업주 부담금, 야간·연장 가산수당, 퇴직금 적립액까지 더한 <strong>사장님의 실제 월 인건비</strong>를 바로 계산해 드립니다.</p>
+    <p class="lead">시급과 근무 시간표만 넣으면 주휴수당·4대보험·야간수당·퇴직금까지 더한 <strong>사장님의 실제 월 인건비</strong>를 바로 계산합니다.</p>
     <p class="muted">입력한 내용은 서버로 전송되지 않고 이 브라우저 안에서만 계산됩니다. · <a href="./privacy/">개인정보처리방침</a></p>
 
     <section class="card calc" aria-labelledby="calc-title">
@@ -150,6 +150,7 @@
 
         <div id="errors" aria-live="assertive"></div>
         <button type="submit" class="btn btn-primary no-print">계산하기</button>
+        <div class="live" id="live-result" aria-live="polite" hidden></div>
       </form>
 
       <section class="result" id="result" aria-labelledby="result-title" hidden>

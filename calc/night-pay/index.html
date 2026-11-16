@@ -114,7 +114,7 @@
   <div class="wrap">
     <nav class="crumbs" aria-label="현재 위치"><a href="../../">홈</a> › <a href="../../calc/">계산기 모음</a> › <span aria-current="page">야간수당 계산기</span></nav>
     <h1>야간수당 계산기 — 밤 10시~오전 6시 가산수당</h1>
-    <p class="lead">편의점·PC방·24시간 매장처럼 밤에 일하는 알바의 야간 가산수당을 계산합니다. 자정을 넘기는 근무도 그대로 넣으면 되고, 5인 미만 사업장이면 의무가 아니라는 점과 지급할 때의 금액을 함께 보여 줍니다.</p>
+    <p class="lead">밤에 일하는 알바의 야간 가산수당을 계산합니다. 자정을 넘기는 근무도 그대로 넣으면 되고, 5인 미만이면 의무 여부와 지급 시 금액을 함께 보여 줍니다.</p>
     <p class="muted">입력한 내용은 서버로 전송되지 않고 이 브라우저 안에서만 계산됩니다. · <a href="../../privacy/">개인정보처리방침</a></p>
 
     <section class="card calc" aria-labelledby="calc-title">
@@ -132,7 +132,6 @@
             <label><input type="radio" name="fivePlus" value="1" checked><span>예 (5인 이상)</span></label>
             <label><input type="radio" name="fivePlus" value="0"><span>아니오 (5인 미만)</span></label>
           </div>
-          <p class="hint">5인 미만이면 야간 가산수당을 줄 법적 의무가 없습니다.</p>
         </div>
         <div class="field">
           <label for="wage" id="wage-label">시급</label>
@@ -166,6 +165,7 @@
         </div>
         <div id="errors" aria-live="assertive"></div>
         <button type="submit" class="btn btn-primary no-print">계산하기</button>
+        <div class="live" id="live-result" aria-live="polite" hidden></div>
       </form>
       <section class="result" id="result" aria-labelledby="result-title" hidden>
         <h2 id="result-title">계산 결과</h2>

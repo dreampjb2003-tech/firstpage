@@ -137,11 +137,29 @@
       return out;
     }
 
+
+    /* 화면 아래 고정 결과 요약 바: 입력하는 동안 결과 금액이 항상 보이게 */
+    function updateLive(ok) {
+      var bar = document.getElementById('live-result');
+      if (!bar) return;
+      var label = document.querySelector('#result-body .summary .label');
+      var big = document.querySelector('#result-body .summary .big');
+      if (ok && label && big) {
+        bar.className = 'live';
+        bar.innerHTML = '<span class="live-txt"><small>' + label.textContent + '</small><b>' + big.textContent + '</b></span><a href="#result">자세히 보기 ↓</a>';
+      } else {
+        bar.className = 'live live-wait';
+        bar.innerHTML = '<span class="live-txt"><small>계산 결과</small><b>입력값을 확인해 주세요</b></span>';
+      }
+      bar.hidden = false;
+    }
+
     function run(opts) {
       var s = read();
       modeSync(s);
       if (daysBox) { D.sums(daysBox, s.days); if (grid) grid.refresh(s.days); }
       var out = render(s);
+      updateLive(!!out.ok);
       save(s);
       if (opts && opts.scroll && out.ok) resultBox.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
