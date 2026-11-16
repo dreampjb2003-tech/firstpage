@@ -142,7 +142,7 @@
 
     // 경고·안내
     if (wage < R.minimumWage) {
-      warnings.push(R.year + '년 최저임금(' + fmt(R.minimumWage) + '원)보다 낮습니다. 최저임금 미달은 법 위반입니다.');
+      warnings.push(R.minimumWageYear + '년 최저임금(' + fmt(R.minimumWage) + '원)보다 낮습니다. 최저임금 미달은 법 위반입니다.');
     }
     if (input.fivePlus && weeklyHours > 52) {
       warnings.push('주 52시간(연장 12시간 포함)을 넘습니다. 5인 이상 사업장은 주 52시간을 넘길 수 없습니다.');
@@ -203,7 +203,7 @@
       errors: [],
       warnings: warnings,
       info: info,
-      year: R.year,
+      year: R.minimumWageYear,
       wage: wage,
       fivePlus: !!input.fivePlus,
       headcount: headcount,

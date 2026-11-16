@@ -1,5 +1,7 @@
 // 실행: node tests/calculator.test.js  (PLAN.md 1-5 기준 예시 및 5-2 체크 항목 자동 검증)
-const R = require('../js/rates.js');
+const RATES = require('../js/rates.js');
+// 기준 예시는 2026년 요율로 고정해서 검증 (오늘 날짜와 무관)
+const R = RATES.resolve('2026-11-16');
 const C = require('../js/calculator.js');
 let fail = 0;
 function eq(name, got, want) {
@@ -70,6 +72,15 @@ r = C.calculate(base({ days: [day('09:00','18:00',30),off,off,off,off,off,off] }
 r = C.calculate(base({ fivePlus: true, days: Array(6).fill(0).map(()=>day('08:00','19:00',60)).concat([off]) }), R);
 eq('주 52시간 초과 경고', r.warnings.some(w=>w.includes('52')) ? 1 : 0, 1);
 r = C.calculate(base({ headcount: 500 }), R); eq('직원 수 보정', r.headcount, 100);
+
+// 적용 시작일 자동 반영
+const R26 = RATES.resolve('2026-12-31'), R27 = RATES.resolve('2027-01-01');
+eq('2026-12-31 국민연금 4.75%', R26.nationalPension.employer, 0.0475);
+eq('2027-01-01 국민연금 5% 자동 적용', R27.nationalPension.employer, 0.05);
+eq('2027-01-01 건강보험은 이전 값 유지', R27.healthInsurance.employer, 0.03595);
+eq('2027년 최저임금 미입력 알림', R27.minimumWageStale ? 1 : 0, 1);
+eq('2026년에는 알림 없음', R26.minimumWageStale ? 1 : 0, 0);
+eq('2027년 국민연금 (기준 예시)', C.calculate(base(), R27).insurance.np, 107840);
 
 console.log(fail ? '\n실패 ' + fail + '건' : '\n전체 통과');
 process.exit(fail ? 1 : 0);

@@ -44,7 +44,7 @@
     var sel = $('industry');
     var html = '';
     R.industrial.forEach(function (it) {
-      html += '<option value="' + it.id + '">' + it.label + ' (' + (it.rate * 100).toFixed(2) + '%)</option>';
+      html += '<option value="' + it.id + '">' + it.label + ' ' + (Math.round(it.rate * 10000) / 100) + '%</option>';
     });
     html += '<option value="custom">직접 입력</option>';
     sel.innerHTML = html;
@@ -222,9 +222,19 @@
       '</td><td class="num">' + won(value) + '</td></tr>';
   }
 
+  function isBlank(s) {
+    return s.wage === '' && !s.days.some(function (d) { return d.on; });
+  }
+
   function render(res, s) {
     clearInvalid();
     errorBox.innerHTML = '';
+    if (isBlank(s)) {
+      // '지우기' 직후: 오류 대신 안내만 표시
+      errorBox.innerHTML = '<div class="note note-info">시급을 입력하고 근무하는 요일을 체크하면 결과가 바로 나타납니다. 처음이라면 위의 \'예시 값 넣기\'를 눌러 보세요.</div>';
+      resultBox.hidden = true;
+      return;
+    }
     if (!res.ok) {
       var eh = '<div class="note note-err" role="alert"><ul>';
       res.errors.forEach(function (e) { eh += '<li>' + e.msg + '</li>'; markInvalid(e.field); });
@@ -307,8 +317,10 @@
 
     // 기준
     var vd = R.verifiedDate ? R.verifiedDate : '<span class="todo">[직접 작성 필요]</span>';
-    h += '<p class="basis">' + R.year + '년 기준 · 요율 최종 확인일 ' + vd +
+    h += '<p class="basis">' + R.effectiveFrom + ' 적용 기준 · 요율 최종 확인일 ' + vd +
       (R.industrialVerified ? '' : ' · <span class="todo">산재보험 요율 확인 필요</span>') +
+      (R.minimumWageStale ? ' · <span class="todo">' + R.asOf.slice(0, 4) + '년 최저임금 반영 필요</span>' : '') +
+      (R.upcoming.length ? ' · 예정된 변경: ' + R.upcoming.join(', ') + ' (시작일에 자동 반영)' : '') +
       ' · 월 환산 ' + W + '주 · 결과는 참고용이며 실제 금액과 다를 수 있습니다. 두루누리 사회보험료 지원 대상이면 국민연금·고용보험 일부를 지원받을 수 있습니다(<a href="https://insurancesupport.or.kr/" target="_blank" rel="noopener">두루누리 공식 사이트</a>).</p>';
 
     $('result-body').innerHTML = h;
@@ -344,7 +356,38 @@
     }
   }
 
+  var BLANK = {
+    wage: '', fivePlus: false, longTerm: true, industryId: R.industrial[0].id, customRate: '', headcount: '1',
+    days: [0, 1, 2, 3, 4, 5, 6].map(function () { return { on: false, start: '09:00', end: '18:00', brk: 60 }; })
+  };
+
+  /* 본문 속 기준값(data-r)을 현재 적용값으로 채움 → 요율이 바뀌면 글도 자동으로 바뀜 */
+  function fillRates() {
+    var map = {
+      mw: fmt(R.minimumWage),
+      mwYear: String(R.minimumWageYear),
+      effectiveFrom: R.effectiveFrom,
+      verified: R.verifiedDate || '[직접 작성 필요]',
+      npTotal: pct(R.nationalPension.employer + R.nationalPension.employee),
+      npEr: pct(R.nationalPension.employer),
+      npEe: pct(R.nationalPension.employee),
+      hiTotal: pct(R.healthInsurance.employer + R.healthInsurance.employee),
+      hiEr: pct(R.healthInsurance.employer),
+      hiEe: pct(R.healthInsurance.employee),
+      ltc: pct(R.longTermCare.ratioOfHealth),
+      eiTotal: pct(R.employmentInsurance.employer + R.employmentInsurance.employee),
+      eiEr: pct(R.employmentInsurance.employer),
+      eiEe: pct(R.employmentInsurance.employee)
+    };
+    document.querySelectorAll('[data-r]').forEach(function (el) {
+      var k = el.getAttribute('data-r');
+      if (map[k] !== undefined) el.textContent = map[k];
+    });
+    if (R.verifiedDate) document.querySelectorAll('[data-r="verified"]').forEach(function (el) { el.classList.remove('todo'); });
+  }
+
   /* ---------- 시작 ---------- */
+  fillRates();
   buildIndustry();
   buildDays();
   writeState(fromQuery(location.search) || load() || clone(DEFAULT));
@@ -356,7 +399,8 @@
   document.querySelectorAll('[data-preset]').forEach(function (b) {
     b.addEventListener('click', function () {
       var p = b.getAttribute('data-preset');
-      if (p === 'reset') writeState(clone(DEFAULT));
+      if (p === 'example') writeState(clone(DEFAULT));
+      else if (p === 'clear') writeState(BLANK);
       else writeDays(PRESETS[p]());
       run();
     });
