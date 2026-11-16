@@ -37,6 +37,7 @@ node tests/calculator.test.js
 - `/` 알바 인건비 계산기 (근무 시간표 드래그, 근로계약서 요약 포함)
 - `/calc/` 계산기 모음
 - `/calc/weekly-holiday-pay/` 주휴수당 · `/calc/insurance/` 4대보험 · `/calc/hourly-monthly/` 시급↔월급 · `/calc/night-pay/` 야간수당 · `/calc/severance/` 퇴직금
+- `/calc/minimum-wage/` 최저임금 · `/calc/durunuri/` 두루누리 지원금 · `/calc/daily-worker-tax/` 일용직 세금 (두 곳은 `rates.js`의 기준값 확인 후 `verified: true`로 바꾸면 경고가 사라짐)
 - `/guide/` `/about/` `/contact/` `/privacy/` `/terms/` `404.html`
 
 ## 자바스크립트 파일 역할

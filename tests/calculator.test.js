@@ -133,5 +133,26 @@ r = C.severance({ start: '2026-06-30', lastDay: '2025-01-01', wage3: 1 }); eq('�
 r = C.severance({ start: '2025-01-31', lastDay: '2026-05-30', wage3: 6000000 });
 eq('퇴직금 말일 처리(5/31-3개월=2/28)', r.periodStart === '2026-02-28' ? 1 : 0, 1);
 
+// ---------- 2차 계산기 ----------
+r = C.minimumWage({ payType: 'monthly', amount: 2000000, weeklyHours: 40 }, R);
+eq('최저임금: 월 200만원 미달', r.below ? 1 : 0, 1); eq('최저임금: 월 부족액 156,880원', r.shortUnit, 156880);
+r = C.minimumWage({ payType: 'daily', amount: 80000, dailyHours: 8 }, R);
+eq('최저임금: 일급 8만원/8시간 → 시간당 10,000원', r.hourly, 10000); eq('최저임금: 하루 부족액 2,560원', r.shortUnit, 2560);
+r = C.minimumWage({ payType: 'hourly', amount: 10320 }, R); eq('최저임금: 10,320원 충족', r.below ? 0 : 1, 1);
+r = C.minimumWage({ payType: 'daily', amount: 80000, dailyHours: '' }, R); eq('최저임금: 일급인데 시간 빈칸 오류', r.ok ? 0 : 1, 1);
+
+r = C.durunuri({ workers: 5, pay: 2156880, newHire: true }, R);
+eq('두루누리: 대상', r.eligible ? 1 : 0, 1); eq('두루누리: 사업주 국민연금 지원(임시값)', r.employer.np, 81960);
+eq('두루누리: 사업주 고용보험 지원(임시값)', r.employer.ei, 15520); eq('두루누리: 미확인 표시', r.verified ? 0 : 1, 1);
+r = C.durunuri({ workers: 12, pay: 2156880, newHire: true }, R); eq('두루누리: 10명 이상 → 대상 아님', r.eligible ? 1 : 0, 0);
+r = C.durunuri({ workers: 5, pay: 3000000, newHire: true }, R); eq('두루누리: 보수 기준 초과 → 0원', r.employer.total, 0);
+
+r = C.dailyTax({ dailyWage: 200000, days: 1, payMode: 'daily' }, R);
+eq('일용직: 20만원 소득세 1,350', r.totalTax, 1350); eq('일용직: 20만원 원천징수 1,480', r.withheld, 1480);
+r = C.dailyTax({ dailyWage: 250000, days: 1, payMode: 'daily' }, R); eq('일용직: 25만원 2,970', r.withheld, 2970);
+r = C.dailyTax({ dailyWage: 180000, days: 5, payMode: 'daily' }, R); eq('일용직: 18만원 매일 지급 → 소액부징수 0', r.withheld, 0);
+r = C.dailyTax({ dailyWage: 180000, days: 5, payMode: 'lump' }, R); eq('일용직: 18만원 5일 모아 지급 → 4,450', r.withheld, 4450);
+r = C.dailyTax({ dailyWage: 150000, days: 3, payMode: 'daily' }, R); eq('일용직: 15만원 이하 비과세', r.taxFree && r.withheld === 0 ? 1 : 0, 1);
+
 console.log(fail ? '\n실패 ' + fail + '건' : '\n전체 통과');
 process.exit(fail ? 1 : 0);

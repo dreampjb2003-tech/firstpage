@@ -423,6 +423,87 @@
     };
   }
 
+  /* ---------- ⑦ 최저임금 ---------- */
+  // input: { payType: 'hourly'|'daily'|'monthly', amount, dailyHours, weeklyHours }
+  function minimumWage(input, R) {
+    var errors = [];
+    var amt = num(input.amount), dh = num(input.dailyHours), wh = num(input.weeklyHours);
+    var type = input.payType === 'daily' || input.payType === 'monthly' ? input.payType : 'hourly';
+    if (!isFinite(amt) || amt < 1 || amt > 100000000) errors.push({ field: 'amount', msg: '금액을 1원 이상의 숫자로 입력해 주세요.' });
+    if (type === 'daily' && (!isFinite(dh) || dh <= 0 || dh > 24)) errors.push({ field: 'dailyHours', msg: '하루 근로시간을 0~24시간 사이로 입력해 주세요.' });
+    if (type === 'monthly' && (!isFinite(wh) || wh <= 0 || wh > 52)) errors.push({ field: 'weeklyHours', msg: '주 소정근로시간을 0~52시간 사이로 입력해 주세요.' });
+    if (errors.length) return { ok: false, errors: errors, warnings: [] };
+    var hours = 1, hourly;
+    if (type === 'hourly') hourly = amt;
+    else if (type === 'daily') { hours = dh; hourly = amt / dh; }
+    else { hours = monthlyPaidHoursFor(wh, holidayHoursFor(wh, R)); hourly = amt / hours; }
+    var below = hourly < R.minimumWage - 1e-9;
+    var shortHour = below ? R.minimumWage - hourly : 0;
+    var unitMin = Math.round(R.minimumWage * hours);
+    return {
+      ok: true, errors: [], warnings: [], payType: type, amount: Math.round(amt), hours: hours, hourly: hourly,
+      minimumWage: R.minimumWage, year: R.minimumWageYear, below: below, shortHour: shortHour,
+      shortUnit: below ? unitMin - Math.round(amt) : 0, unitMin: unitMin, surplus: below ? 0 : Math.round(amt) - unitMin
+    };
+  }
+
+  /* ---------- ⑧ 두루누리 ---------- */
+  // input: { workers, pay, newHire(bool) }
+  function durunuri(input, R) {
+    var errors = [], cfg = R.durunuri;
+    var workers = num(input.workers), pay = num(input.pay);
+    if (!isFinite(workers) || workers < 1 || workers > 100000 || workers !== Math.floor(workers)) errors.push({ field: 'workers', msg: '근로자 수를 1명 이상의 정수로 입력해 주세요.' });
+    if (!isFinite(pay) || pay < 1 || pay > 100000000) errors.push({ field: 'pay', msg: '월평균 보수를 1원 이상의 숫자로 입력해 주세요.' });
+    if (errors.length) return { ok: false, errors: errors, warnings: [] };
+    pay = Math.round(pay);
+    var newHire = input.newHire !== false;
+    var okSize = workers < cfg.maxWorkers, okPay = pay < cfg.payLimit;
+    var eligible = okSize && okPay && newHire;
+    var ins = insuranceFor(pay, 0, true, R);
+    var ei = floor10(pay * cfg.eiRate);
+    var supEr = { np: eligible ? floor10(ins.employer.np * cfg.rate) : 0, ei: eligible ? floor10(ei * cfg.rate) : 0 };
+    var supEe = { np: eligible ? floor10(ins.employee.np * cfg.rate) : 0, ei: eligible ? floor10(ei * cfg.rate) : 0 };
+    supEr.total = supEr.np + supEr.ei; supEe.total = supEe.np + supEe.ei;
+    return {
+      ok: true, errors: [], warnings: [], verified: !!cfg.verified, cfg: cfg,
+      workers: workers, pay: pay, newHire: newHire, okSize: okSize, okPay: okPay, eligible: eligible,
+      before: { np: ins.employer.np, ei: ei, npW: ins.employee.np, eiW: ei },
+      employer: supEr, employee: supEe,
+      employerMonthlyAfter: ins.employer.np + ins.employer.ei - supEr.total,
+      maxTotal: (supEr.total + supEe.total) * cfg.months
+    };
+  }
+
+  /* ---------- ⑨ 일용직 세금 ---------- */
+  // input: { dailyWage, days, payMode: 'daily'|'lump' }
+  function dailyTax(input, R) {
+    var errors = [], cfg = R.dailyWorker;
+    var w = num(input.dailyWage), days = num(input.days);
+    if (!isFinite(w) || w < 1 || w > 10000000) errors.push({ field: 'dailyWage', msg: '일급을 1원 이상의 숫자로 입력해 주세요.' });
+    if (!isFinite(days) || days < 1 || days > 31 || days !== Math.floor(days)) errors.push({ field: 'days', msg: '근무일수를 1~31일 사이의 정수로 입력해 주세요.' });
+    if (errors.length) return { ok: false, errors: errors, warnings: [] };
+    w = Math.round(w);
+    var rawDay = Math.max(0, w - cfg.deduction) * cfg.rate * (1 - cfg.credit);   // 하루 산출세액(공제 후)
+    var lump = input.payMode === 'lump';
+    function settle(raw) {
+      var tax = floor10(raw);
+      if (tax < cfg.minTax) return { tax: 0, local: 0, exempt: raw > 0 };
+      return { tax: tax, local: floor10(tax * cfg.localRate), exempt: false };
+    }
+    var perDay = settle(rawDay), total;
+    if (lump) total = settle(rawDay * days);
+    else total = { tax: perDay.tax * days, local: perDay.local * days, exempt: perDay.exempt };
+    var withheld = total.tax + total.local;
+    return {
+      ok: true, errors: [], warnings: [], verified: !!cfg.verified, cfg: cfg,
+      dailyWage: w, days: days, lump: lump, rawDay: rawDay, perDay: perDay,
+      totalTax: total.tax, totalLocal: total.local, withheld: withheld, exempt: total.exempt,
+      gross: w * days, net: w * days - withheld,
+      eiWorker: floor10(w * days * R.employmentInsurance.employee),
+      taxFree: w <= cfg.deduction
+    };
+  }
+
   function fmt(n) {
     return Math.round(n).toLocaleString('ko-KR');
   }
@@ -435,6 +516,9 @@
     hourlyMonthly: hourlyMonthly,
     nightDirect: nightDirect,
     severance: severance,
+    minimumWage: minimumWage,
+    durunuri: durunuri,
+    dailyTax: dailyTax,
     num: num,
     parseTime: parseTime,
     nightMinutes: nightMinutes,

@@ -175,6 +175,94 @@
         return { ok: true, warnings: r.warnings, html: h };
       }
     }
+    ,
+    /* ⑦ 최저임금 */
+    'minimum-wage': {
+      key: 'sajang-minwage-v1',
+      fields: ['payType', 'amount', 'dailyHours', 'weeklyHours'],
+      defaults: { payType: 'monthly', amount: '2000000', dailyHours: '8', weeklyHours: '40' },
+      blank: { payType: 'monthly', amount: '', dailyHours: '8', weeklyHours: '40' },
+      isBlank: function (s) { return s.amount === ''; },
+      compute: function (s) {
+        var lbl = document.getElementById('amount-label');
+        if (lbl) lbl.textContent = { hourly: '시급', daily: '일급', monthly: '월급 (최저임금에 들어가는 임금)' }[s.payType] || '금액';
+        var r = C.minimumWage(s, R);
+        if (!r.ok) return r;
+        var unit = { hourly: '1시간', daily: '하루', monthly: '한 달' }[r.payType];
+        var h = r.below
+          ? P.summary(r.year + '년 최저임금 미달', unit + ' ' + won(r.shortUnit) + ' 부족', [['환산 시급', '약 ' + won(Math.round(r.hourly))], ['최저임금', won(r.minimumWage)]])
+          : P.summary(r.year + '년 최저임금 충족', '환산 시급 약 ' + won(Math.round(r.hourly)), [['최저임금', won(r.minimumWage)], [unit + ' 여유', won(r.surplus)]]);
+        h += P.badges([[!r.below, '최저임금 이상', '최저임금 미달']]);
+        var rows = [{ cells: ['입력한 금액', won(r.amount)] }];
+        if (r.payType === 'daily') rows.push({ cells: ['하루 근로시간', hm(r.hours)] });
+        if (r.payType === 'monthly') rows.push({ cells: ['월 유급시간 (주휴 포함)', r.hours + '시간'] });
+        rows.push({ cells: ['환산 시급', won(Math.round(r.hourly))] });
+        rows.push({ cells: [r.year + '년 최저임금 (시급)', won(r.minimumWage)] });
+        rows.push({ cells: ['같은 시간의 최저임금 (' + unit + ')', won(r.unitMin)] });
+        rows.push({ cls: 'total', cells: [r.below ? '부족액 (' + unit + ')' : '최저임금보다 많은 금액 (' + unit + ')', won(r.below ? r.shortUnit : r.surplus)] });
+        h += P.table('계산 내역', ['항목', '값'], rows);
+        if (r.below) h += '<div class="note note-err">최저임금보다 적게 주면 차액을 지급해야 하고 처벌 대상이 될 수 있습니다. 시급을 올리거나 근로시간을 실제에 맞게 조정하세요.</div>';
+        h += '<p class="muted">연장·야간·휴일 가산수당, 결혼수당 같은 비정기 수당은 최저임금 계산에 넣지 않습니다. 수습 기간 감액은 계산하지 않았습니다.</p>';
+        return { ok: true, warnings: r.warnings, html: h };
+      }
+    },
+
+    /* ⑧ 두루누리 */
+    'durunuri': {
+      key: 'sajang-durunuri-v1',
+      fields: ['workers', 'pay', 'newHire'],
+      defaults: { workers: '3', pay: '2156880', newHire: '1' },
+      blank: { workers: '', pay: '', newHire: '1' },
+      isBlank: function (s) { return s.workers === '' && s.pay === ''; },
+      compute: function (s) {
+        var r = C.durunuri({ workers: s.workers, pay: s.pay, newHire: s.newHire !== '0' }, R);
+        if (!r.ok) return r;
+        var c = r.cfg, h = '';
+        if (!r.verified) h += '<div class="note note-err"><strong>기준값 확인 전</strong> — 지원 기준(사업장 규모, 보수 기준액, 지원율, 기간)이 아직 공식 기준과 대조되지 않은 임시값입니다. 실제 지원 여부와 금액은 <a href="https://insurancesupport.or.kr/" target="_blank" rel="noopener">두루누리 공식 사이트</a>에서 확인하세요.</div>';
+        h += r.eligible
+          ? P.summary('사장님 몫 지원 예상액 (월)', won(r.employer.total), [['알바생 몫 지원', won(r.employee.total)], ['최대 ' + c.months + '개월 합계', won(r.maxTotal)]])
+          : P.summary('지원 예상액 (월)', '0원', [['사장님 몫', '대상 아님'], ['알바생 몫', '대상 아님']]);
+        h += P.badges([[r.okSize, '근로자 ' + c.maxWorkers + '명 미만', '근로자 ' + c.maxWorkers + '명 이상'], [r.okPay, '보수 ' + fmt(c.payLimit) + '원 미만', '보수 기준 초과'], [r.newHire, '신규 가입자', '신규 가입 아님']]);
+        h += P.table('보험료와 지원액 (월)', ['항목', '사장님', '알바생'], [
+          { cells: ['국민연금 보험료', won(r.before.np), won(r.before.npW)] },
+          { cells: ['국민연금 지원 (' + Math.round(c.rate * 100) + '%)', '−' + won(r.employer.np), '−' + won(r.employee.np)] },
+          { cells: ['고용보험(실업급여분) 보험료', won(r.before.ei), won(r.before.eiW)] },
+          { cells: ['고용보험 지원 (' + Math.round(c.rate * 100) + '%)', '−' + won(r.employer.ei), '−' + won(r.employee.ei)] },
+          { cls: 'total', cells: ['월 지원 합계', won(r.employer.total), won(r.employee.total)] }
+        ]);
+        h += '<p class="muted">지원은 신청해야 받을 수 있고, 재산·소득 요건과 과거 가입 이력에 따라 대상에서 빠질 수 있습니다. 건강보험·산재보험은 지원 대상이 아닙니다.</p>';
+        return { ok: true, warnings: r.warnings, html: h };
+      }
+    },
+
+    /* ⑨ 일용직 세금 */
+    'daily-worker-tax': {
+      key: 'sajang-dailytax-v1',
+      fields: ['dailyWage', 'days', 'payMode'],
+      defaults: { dailyWage: '200000', days: '5', payMode: 'daily' },
+      blank: { dailyWage: '', days: '1', payMode: 'daily' },
+      isBlank: function (s) { return s.dailyWage === ''; },
+      compute: function (s) {
+        var r = C.dailyTax(s, R);
+        if (!r.ok) return r;
+        var c = r.cfg, h = '';
+        if (!r.verified) h += '<div class="note note-warn"><span class="todo">기준값 확인 필요</span> 일용근로소득 공제액·세율·세액공제·소액부징수 기준을 국세청 안내와 대조하기 전입니다.</div>';
+        h += P.summary('원천징수할 세금 (' + r.days + '일 합계)', won(r.withheld), [['알바생 실수령', won(r.net)], ['지급 총액', won(r.gross)]]);
+        h += P.badges([[!r.taxFree, '과세 대상 일급', '일급 ' + fmt(c.deduction) + '원 이하: 세금 없음'], [!r.exempt, '징수', '소액부징수 (1,000원 미만)']]);
+        h += P.table('계산 내역', ['항목', '값'], [
+          { cells: ['일급 − 1일 공제 ' + fmt(c.deduction) + '원', won(Math.max(0, r.dailyWage - c.deduction))] },
+          { cells: ['× 세율 ' + Math.round(c.rate * 100) + '% × (1 − 세액공제 ' + Math.round(c.credit * 100) + '%)', won(Math.round(r.rawDay)) + ' /일'] },
+          { cells: ['지급 방식', r.lump ? r.days + '일분을 모아서 한 번에 지급' : '매일 지급'] },
+          { cells: ['소득세', won(r.totalTax)] },
+          { cells: ['지방소득세 (소득세의 10%)', won(r.totalLocal)] },
+          { cls: 'total', cells: ['원천징수 합계', won(r.withheld)] },
+          { cells: ['참고: 알바생 고용보험료 (0.9%)', won(r.eiWorker)] }
+        ]);
+        if (r.exempt) h += '<div class="note note-info">한 번 지급할 때 원천징수할 소득세가 1,000원 미만이면 걷지 않습니다(소액부징수). 여러 날을 모아서 지급하면 합계 세액이 1,000원을 넘어 세금이 생길 수 있습니다.</div>';
+        h += '<p class="muted">사장님은 일용근로소득 지급명세서를 기한 안에 제출하고, 고용보험 근로내용확인신고를 해야 합니다.</p>';
+        return { ok: true, warnings: r.warnings, html: h };
+      }
+    }
   };
 
   var name = document.body.getAttribute('data-calc');
