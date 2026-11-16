@@ -1,0 +1,33 @@
+# Cloudflare Workers에 올리지 않을 파일 (.gitignore와 같은 작성법)
+
+# git 세이브 포인트 기록
+.git
+
+# 배포·저장소 설정 파일 (방문자에게 필요 없음)
+wrangler.jsonc
+.assetsignore
+.gitignore
+.wrangler
+node_modules
+
+# 공개하면 안 되는 운영 문서
+PLAN.md
+PLAN.*.md
+
+# Claude 작업 기록
+.claude
+
+# 맥·윈도우 시스템 파일
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# 운영 메모와 계산 검증 코드 (사이트 방문자에게 필요 없음)
+README.md
+tests
+
+# 비밀 정보·압축 파일
+.env
+.env.*
+*.zip

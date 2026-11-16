@@ -21,3 +21,7 @@ desktop.ini
 .env
 .env.*
 *.zip
+
+# Cloudflare wrangler 임시 폴더
+.wrangler/
+node_modules/

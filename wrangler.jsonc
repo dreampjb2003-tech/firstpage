@@ -1,0 +1,16 @@
+{
+  // Cloudflare에 표시될 Worker 이름. 기본 주소가 https://llm-token-calc.<계정>.workers.dev 가 됩니다.
+  "name": "llm-token-calc",
+
+  // Cloudflare 실행 환경의 기준 날짜. 이 날짜 기준의 동작 방식으로 고정됩니다.
+  "compatibility_date": "2026-11-01",
+
+  // 정적 파일(HTML·CSS·JS·이미지)을 그대로 올리는 설정
+  "assets": {
+    // 올릴 폴더: 이 파일이 있는 폴더(사이트 폴더 맨 위) 그대로
+    "directory": "./",
+
+    // 없는 주소로 들어오면 가장 가까운 404.html을 404 상태로 보여 줌
+    "not_found_handling": "404-page"
+  }
+}
