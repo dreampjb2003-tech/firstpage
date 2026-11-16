@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>사장님계산기 - 알바 인건비·주휴수당·4대보험 계산기 (2026)</title>
+<meta name="description" content="시급과 근무 스케줄만 입력하면 주휴수당, 4대보험 사업주 부담금, 야간·연장수당, 퇴직금까지 합친 월 총 인건비를 계산합니다. 3.3%와 4대보험 비용 비교 포함.">
+<link rel="canonical" href="https://example.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="사장님계산기">
+<meta property="og:title" content="사장님계산기 - 알바 인건비·주휴수당·4대보험 계산기 (2026)">
+<meta property="og:description" content="시급과 근무 스케줄만 입력하면 사장님이 실제로 쓰는 월 총 인건비를 계산합니다.">
+<meta property="og:url" content="https://example.com/">
+<meta property="og:image" content="https://example.com/images/og-image.png">
+<meta name="theme-color" content="#1f6f5c">
+<link rel="icon" href="./favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./css/style.css">
+<!-- 애드센스 승인 후 여기에 애드센스 스크립트를 넣습니다 [직접 작성 필요: 게시자 ID] -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebApplication",
+      "name": "사장님계산기",
+      "url": "https://example.com/",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "All",
+      "inLanguage": "ko",
+      "description": "알바생 시급과 근무 스케줄로 주휴수당, 4대보험 사업주 부담금, 야간·연장수당, 퇴직금 적립액을 합친 월 총 인건비를 계산하는 무료 도구",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "KRW" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "주 15시간 미만으로 쓰면 주휴수당을 안 줘도 되나요?",
+          "acceptedAnswer": { "@type": "Answer", "text": "네. 1주 소정근로시간이 15시간 미만인 초단시간 근로자에게는 주휴수당을 주지 않아도 됩니다. 퇴직금과 국민연금·건강보험·고용보험 가입 의무도 원칙적으로 없지만 산재보험은 의무입니다. 다만 실제 근무시간이 자주 15시간을 넘으면 주휴수당이 발생할 수 있습니다." } },
+        { "@type": "Question", "name": "5인 미만 사업장도 야간수당을 줘야 하나요?",
+          "acceptedAnswer": { "@type": "Answer", "text": "상시근로자 5인 미만 사업장은 야간·연장·휴일근로 가산수당(통상임금의 50%)을 지급할 법적 의무가 없습니다. 하지만 일한 시간에 대한 기본 시급은 당연히 지급해야 하고, 주휴수당과 퇴직금은 5인 미만이어도 의무입니다." } },
+        { "@type": "Question", "name": "알바생을 3.3%로 신고하면 4대보험을 안 내도 되나요?",
+          "acceptedAnswer": { "@type": "Answer", "text": "근로자를 사업소득자(3.3%)로 신고해도 실제로 정해진 시간과 장소에서 지시를 받고 일했다면 근로자로 판정됩니다. 이 경우 4대보험료가 소급 부과되고 가산금이 붙을 수 있으며, 주휴수당과 퇴직금도 지급해야 합니다." } },
+        { "@type": "Question", "name": "퇴직금은 알바생에게도 줘야 하나요?",
+          "acceptedAnswer": { "@type": "Answer", "text": "네. 계속 근로기간이 1년 이상이고 4주 평균 1주 소정근로시간이 15시간 이상이면 아르바이트도 퇴직금 지급 대상입니다. 퇴직금은 대략 1년에 한 달치 임금이므로 매달 월급의 12분의 1 정도를 미리 적립해 두는 것이 좋습니다." } },
+        { "@type": "Question", "name": "계산 결과가 실제 급여와 다른 이유는 무엇인가요?",
+          "acceptedAnswer": { "@type": "Answer", "text": "이 계산기는 매주 같은 스케줄로 개근한다고 가정하고 월 평균값(1개월=약 4.345주)으로 계산합니다. 실제로는 달마다 날짜 수가 다르고, 보험료는 공단이 신고된 보수월액으로 산정하며, 결근·휴일근로·식대 등 개별 사정이 반영되지 않아 차이가 날 수 있습니다." } }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a class="logo" href="./" aria-label="사장님계산기 홈">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#1f6f5c"/><rect x="8" y="6" width="16" height="20" rx="3" fill="#fff"/><rect x="10.5" y="8.5" width="11" height="4" rx="1" fill="#1f6f5c"/><circle cx="12" cy="16.5" r="1.4" fill="#1f6f5c"/><circle cx="16" cy="16.5" r="1.4" fill="#1f6f5c"/><circle cx="20" cy="16.5" r="1.4" fill="#1f6f5c"/><circle cx="12" cy="21" r="1.4" fill="#1f6f5c"/><circle cx="16" cy="21" r="1.4" fill="#1f6f5c"/><circle cx="20" cy="21" r="1.4" fill="#e8a33d"/></svg>
+      사장님계산기
+    </a>
+    <button class="menu-btn" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="메뉴 열기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <nav class="nav" id="site-nav" aria-label="주 메뉴">
+      <ul>
+        <li><a href="./" aria-current="page">계산기</a></li>
+        <li><a href="./guide/">활용 가이드</a></li>
+        <li><a href="./about/">소개</a></li>
+        <li><a href="./contact/">문의</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <h1>알바 인건비 계산기 — 주휴수당·4대보험·퇴직금까지 한 번에</h1>
+    <p class="lead">시급 10,320원짜리 알바생을 쓰면 사장님 통장에서는 시간당 얼마가 나갈까요? 시급과 요일별 근무시간만 넣으면 주휴수당, 4대보험 사업주 부담금, 야간·연장 가산수당, 퇴직금 적립액까지 더한 <strong>사장님의 실제 월 인건비</strong>를 바로 계산해 드립니다.</p>
+    <p class="muted">입력한 내용은 서버로 전송되지 않고 이 브라우저 안에서만 계산됩니다. · <a href="./privacy/">개인정보처리방침</a></p>
+
+    <section class="card calc" aria-labelledby="calc-title">
+      <h2 id="calc-title">인건비 계산하기</h2>
+      <noscript><div class="note note-warn">이 계산기는 자바스크립트가 필요합니다. 브라우저 설정에서 자바스크립트를 켜 주세요.</div></noscript>
+      <form id="calc-form" novalidate>
+        <div class="field">
+          <span class="field-label" id="lbl-five">상시근로자가 5인 이상인가요?</span>
+          <div class="seg" role="radiogroup" aria-labelledby="lbl-five">
+            <label><input type="radio" name="fivePlus" value="0" checked><span>아니오 (5인 미만)</span></label>
+            <label><input type="radio" name="fivePlus" value="1"><span>예 (5인 이상)</span></label>
+          </div>
+          <p class="hint">5인 미만이면 야간·연장 가산수당 의무가 없습니다. 사장님 본인과 가족은 빼고 셉니다.</p>
+        </div>
+
+        <div class="field">
+          <label for="wage">시급</label>
+          <div class="input-unit">
+            <input id="wage" type="text" inputmode="numeric" autocomplete="off" aria-describedby="wage-hint">
+            <span>원</span>
+          </div>
+          <p class="hint" id="wage-hint">2026년 최저임금은 시간당 10,320원입니다.</p>
+        </div>
+
+        <div class="field">
+          <span class="field-label" id="lbl-days">요일별 근무시간</span>
+          <div class="presets" role="group" aria-label="스케줄 빠른 입력">
+            <button type="button" class="btn btn-sm" data-preset="full">평일 풀타임 (주40h)</button>
+            <button type="button" class="btn btn-sm" data-preset="weekend">주말 알바 (토·일 8h)</button>
+            <button type="button" class="btn btn-sm" data-preset="evening">평일 저녁 4h</button>
+            <button type="button" class="btn btn-sm" data-preset="night">평일 야간 (22~07시)</button>
+          </div>
+          <div class="days" id="days" aria-labelledby="lbl-days"></div>
+          <p class="hint">종료 시각이 시작보다 이르면 자정을 넘긴 근무로 계산합니다. 휴게시간은 근무시간에서 뺍니다.</p>
+        </div>
+
+        <div class="field">
+          <span class="field-label" id="lbl-long">근무 기간</span>
+          <div class="seg" role="radiogroup" aria-labelledby="lbl-long">
+            <label><input type="radio" name="longTerm" value="1" checked><span>1년 이상 (예정)</span></label>
+            <label><input type="radio" name="longTerm" value="0"><span>1년 미만</span></label>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="industry">업종 (산재보험 요율)</label>
+          <select id="industry"></select>
+          <div id="customRateWrap" hidden style="margin-top:8px">
+            <label for="customRate" class="sr-only">산재보험 요율 직접 입력</label>
+            <div class="input-unit">
+              <input id="customRate" type="text" inputmode="decimal" placeholder="예: 0.86" autocomplete="off">
+              <span>%</span>
+            </div>
+          </div>
+          <p class="hint">산재보험 요율은 업종마다 다릅니다. 사업장 요율을 알면 '직접 입력'을 고르세요.</p>
+        </div>
+
+        <div class="field">
+          <label for="headcount">같은 조건 직원 수</label>
+          <div class="input-unit">
+            <input id="headcount" type="number" inputmode="numeric" min="1" max="100" step="1">
+            <span>명</span>
+          </div>
+        </div>
+
+        <div id="errors" aria-live="assertive"></div>
+        <button type="submit" class="btn btn-primary no-print">계산하기</button>
+      </form>
+
+      <section class="result" id="result" aria-labelledby="result-title" hidden>
+        <h2 id="result-title">계산 결과</h2>
+        <div id="result-body"></div>
+        <div class="actions">
+          <button type="button" class="btn" id="btn-print">인쇄하기</button>
+          <button type="button" class="btn" id="btn-copy">입력값 링크 복사</button>
+          <button type="button" class="btn" id="btn-reset">처음부터 다시</button>
+        </div>
+      </section>
+    </section>
+
+    <!-- 광고 자리 1: 결과 카드 아래 (승인 후 광고 코드 삽입) -->
+    <div class="ad-slot" aria-hidden="true"></div>
+
+    <section aria-labelledby="how-title">
+      <h2 id="how-title">이렇게 계산합니다</h2>
+      <p>알바생 인건비는 "시급 × 일한 시간"으로 끝나지 않습니다. 사장님이 실제로 부담하는 돈은 크게 네 가지가 더해집니다. 바로 쉬는 날에도 주는 <strong>주휴수당</strong>, 월급과 별도로 사장님이 내는 <strong>4대보험 사업주 부담금</strong>, 밤늦게나 오래 일했을 때 붙는 <strong>가산수당</strong>, 그리고 1년을 넘기면 한꺼번에 나가는 <strong>퇴직금</strong>입니다. 이 계산기는 네 가지를 모두 월 단위로 바꿔 한 번에 보여 줍니다.</p>
+
+      <h3>주휴수당</h3>
+      <p>1주일에 정해진 근로시간(소정근로시간)이 15시간 이상이고 그 주를 개근하면, 일하지 않는 하루에 대해서도 임금을 줘야 합니다. 이것이 주휴수당입니다. 주휴시간은 <strong>주 근로시간 ÷ 40 × 8시간</strong>으로 계산하고 최대 8시간입니다. 주 40시간 일하는 직원은 매주 8시간분, 주 20시간 일하는 직원은 4시간분을 더 받습니다. 그래서 주 40시간 근무자의 한 달 유급시간은 일한 174시간이 아니라 주휴를 더한 <strong>209시간</strong>이 됩니다.</p>
+
+      <h3>4대보험 사업주 부담금</h3>
+      <p>국민연금·건강보험·고용보험은 보험료를 사업주와 근로자가 나눠 내고, 산재보험은 사업주가 전액 냅니다. 알바생 월급에서 떼는 근로자 몫과 별도로, 사장님은 월 임금의 약 9~10%를 추가로 부담합니다. 월 소정근로시간이 60시간(대략 주 15시간) 미만이면 국민연금·건강보험·고용보험 가입 의무가 원칙적으로 없지만, <strong>산재보험은 단 하루만 일해도 의무</strong>입니다.</p>
+
+      <h3>야간·연장 가산수당</h3>
+      <p>상시근로자 5인 이상 사업장은 밤 10시부터 다음 날 오전 6시 사이에 일한 시간(야간근로), 하루 8시간 또는 주 40시간을 넘겨 일한 시간(연장근로)에 대해 시급의 50%를 더 줘야 합니다. 야간이면서 연장인 시간은 두 가산이 함께 붙습니다. 5인 미만 사업장은 이 가산 의무가 없어서, 계산기는 의무 금액을 0원으로 두고 "지급한다면 얼마인지"를 참고로 보여 줍니다.</p>
+
+      <h3>퇴직금</h3>
+      <p>1년 이상 계속 일하고 4주 평균 주 15시간 이상 일한 근로자는 퇴직할 때 1년에 약 30일분의 평균임금을 퇴직금으로 받습니다. 쉽게 말해 <strong>1년에 한 달치 월급</strong>입니다. 그만둘 때 한꺼번에 큰돈이 나가 당황하지 않도록, 계산기는 이를 매달 적립해야 할 금액(월 임금 ÷ 12)으로 바꿔 인건비에 포함합니다.</p>
+    </section>
+
+    <!-- 광고 자리 2: 본문 중간 (승인 후 광고 코드 삽입) -->
+    <div class="ad-slot" aria-hidden="true"></div>
+
+    <section aria-labelledby="table-title">
+      <h2 id="table-title">2026년 참고 표</h2>
+
+      <h3>4대보험 요율표 (2026년)</h3>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>보험</th><th class="num">전체 요율</th><th class="num">사업주</th><th class="num">근로자</th></tr></thead>
+          <tbody>
+            <tr><td>국민연금</td><td class="num">9.5%</td><td class="num">4.75%</td><td class="num">4.75%</td></tr>
+            <tr><td>건강보험</td><td class="num">7.19%</td><td class="num">3.595%</td><td class="num">3.595%</td></tr>
+            <tr><td>장기요양보험</td><td class="num">건강보험료의 13.14%</td><td class="num">절반</td><td class="num">절반</td></tr>
+            <tr><td>고용보험 (150인 미만)</td><td class="num">2.05%</td><td class="num">1.15%</td><td class="num">0.9%</td></tr>
+            <tr><td>산재보험</td><td class="num">업종별 상이</td><td class="num">전액</td><td class="num">없음</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted">요율은 매년 바뀔 수 있습니다. 정확한 금액은 4대사회보험 정보연계센터에서 확인하세요.</p>
+
+      <h3>주 근무시간별 주휴수당 (시급 10,320원 기준)</h3>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>주 근무시간</th><th class="num">주휴시간</th><th class="num">주휴수당 (주)</th><th class="num">주휴수당 (월 환산)</th></tr></thead>
+          <tbody>
+            <tr><td>10시간</td><td class="num">없음</td><td class="num">0원</td><td class="num">0원</td></tr>
+            <tr><td>15시간</td><td class="num">3시간</td><td class="num">30,960원</td><td class="num">약 134,529원</td></tr>
+            <tr><td>20시간</td><td class="num">4시간</td><td class="num">41,280원</td><td class="num">약 179,371원</td></tr>
+            <tr><td>30시간</td><td class="num">6시간</td><td class="num">61,920원</td><td class="num">약 269,057원</td></tr>
+            <tr><td>40시간</td><td class="num">8시간</td><td class="num">82,560원</td><td class="num">약 358,743원</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>5인 미만 vs 5인 이상 사업장 비교</h3>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>항목</th><th>5인 미만</th><th>5인 이상</th></tr></thead>
+          <tbody>
+            <tr><td>최저임금</td><td>적용</td><td>적용</td></tr>
+            <tr><td>주휴수당</td><td>적용</td><td>적용</td></tr>
+            <tr><td>퇴직금</td><td>적용</td><td>적용</td></tr>
+            <tr><td>4대보험</td><td>적용</td><td>적용</td></tr>
+            <tr><td>야간·연장·휴일 가산수당</td><td>의무 없음</td><td>50% 가산</td></tr>
+            <tr><td>주 52시간 제한</td><td>적용 안 됨</td><td>적용</td></tr>
+            <tr><td>연차유급휴가</td><td>의무 없음</td><td>적용</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 광고 자리 3: FAQ 위 (승인 후 광고 코드 삽입) -->
+    <div class="ad-slot" aria-hidden="true"></div>
+
+    <section class="faq" aria-labelledby="faq-title">
+      <h2 id="faq-title">자주 묻는 질문</h2>
+      <details>
+        <summary>주 15시간 미만으로 쓰면 주휴수당을 안 줘도 되나요?</summary>
+        <div><p>네. 1주 소정근로시간이 15시간 미만인 초단시간 근로자에게는 주휴수당을 주지 않아도 됩니다. 퇴직금과 국민연금·건강보험·고용보험 가입 의무도 원칙적으로 없지만 산재보험은 의무입니다. 다만 실제 근무시간이 자주 15시간을 넘으면 주휴수당이 발생할 수 있습니다. <a href="./guide/#holiday">주휴수당 판정법 자세히 보기</a></p></div>
+      </details>
+      <details>
+        <summary>5인 미만 사업장도 야간수당을 줘야 하나요?</summary>
+        <div><p>상시근로자 5인 미만 사업장은 야간·연장·휴일근로 가산수당(통상임금의 50%)을 지급할 법적 의무가 없습니다. 하지만 일한 시간에 대한 기본 시급은 당연히 지급해야 하고, 주휴수당과 퇴직금은 5인 미만이어도 의무입니다. <a href="./guide/#premium">가산수당 자세히 보기</a></p></div>
+      </details>
+      <details>
+        <summary>알바생을 3.3%로 신고하면 4대보험을 안 내도 되나요?</summary>
+        <div><p>근로자를 사업소득자(3.3%)로 신고해도 실제로 정해진 시간과 장소에서 지시를 받고 일했다면 근로자로 판정됩니다. 이 경우 4대보험료가 소급 부과되고 가산금이 붙을 수 있으며, 주휴수당과 퇴직금도 지급해야 합니다. <a href="./guide/#freelance">3.3% 처리 위험 자세히 보기</a></p></div>
+      </details>
+      <details>
+        <summary>퇴직금은 알바생에게도 줘야 하나요?</summary>
+        <div><p>네. 계속 근로기간이 1년 이상이고 4주 평균 1주 소정근로시간이 15시간 이상이면 아르바이트도 퇴직금 지급 대상입니다. 퇴직금은 대략 1년에 한 달치 임금이므로 매달 월급의 12분의 1 정도를 미리 적립해 두는 것이 좋습니다. <a href="./guide/#severance">퇴직금 적립법 자세히 보기</a></p></div>
+      </details>
+      <details>
+        <summary>계산 결과가 실제 급여와 다른 이유는 무엇인가요?</summary>
+        <div><p>이 계산기는 매주 같은 스케줄로 개근한다고 가정하고 월 평균값(1개월=약 4.345주)으로 계산합니다. 실제로는 달마다 날짜 수가 다르고, 보험료는 공단이 신고된 보수월액으로 산정하며, 결근·휴일근로·식대 등 개별 사정이 반영되지 않아 차이가 날 수 있습니다.</p></div>
+      </details>
+    </section>
+
+    <section aria-labelledby="owner-title">
+      <h2 id="owner-title">운영자 한마디</h2>
+      <div class="owner-box">
+        <p><span class="todo">[직접 작성 필요]</span> 이 계산기를 만들게 된 계기를 3~5문장으로 적어 주세요. (예: 직접 매장을 운영하며 인건비가 예상보다 많이 나왔던 경험, 주휴수당을 놓쳐서 곤란했던 일 등 실제 경험만 적습니다.)</p>
+      </div>
+    </section>
+
+    <div class="cta">
+      <p>주휴수당 판정법, 3.3% 처리의 위험, 인건비 줄이는 합법적 방법까지 더 알고 싶다면</p>
+      <a class="btn btn-primary" href="./guide/">사장님 인건비 완전정복 가이드 보기</a>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <ul>
+      <li><a href="./about/">소개</a></li>
+      <li><a href="./contact/">문의</a></li>
+      <li><a href="./privacy/">개인정보처리방침</a></li>
+      <li><a href="./terms/">이용약관</a></li>
+    </ul>
+    <p>본 결과는 참고용이며 법적 효력이 없습니다. 중요한 결정은 노무사·세무사 또는 관할 기관에 확인하세요.</p>
+    <p>© 2026 사장님계산기</p>
+  </div>
+</footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="./js/rates.js" defer></script>
+<script src="./js/calculator.js" defer></script>
+<script src="./js/ui.js" defer></script>
+<script src="./js/common.js" defer></script>
+</body>
+</html>
